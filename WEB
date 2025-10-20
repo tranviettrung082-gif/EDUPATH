@@ -1,0 +1,2237 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ sinh thái định hướng nghề nghiệp</title>
+    <!-- Tải Tailwind CSS để tạo giao diện nhanh chóng -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        /* Định nghĩa màu sắc DISC trong CSS để dễ tái sử dụng với Tailwind */
+        :root {
+            --tw-disc-d: #ef4444; /* red-500 */
+            --tw-disc-i: #3b82f6; /* blue-500 */
+            --tw-disc-s: #10b981; /* green-500 */
+            --tw-disc-c: #f59e0b; /* amber-500 */
+            /* Màu Holland */
+            --tw-holland-r: #b91c1c; /* red-700 */
+            --tw-holland-i: #3b82f6; /* blue-500 */
+            --tw-holland-a: #a855f7; /* purple-500 */
+            --tw-holland-s: #10b981; /* green-500 */
+            --tw-holland-e: #f97316; /* orange-500 */
+            --tw-holland-c: #4b5563; /* gray-600 */
+            /* Màu MBTI */
+            --tw-mbti-e: #fcd34d; /* amber-300 */
+            --tw-mbti-i: #34d399; /* emerald-400 */
+            --tw-mbti-s: #60a5fa; /* blue-400 */
+            --tw-mbti-n: #a78bfa; /* violet-400 */
+            --tw-mbti-t: #f87171; /* red-400 */
+            --tw-mbti-f: #f472b6; /* pink-400 */
+            --tw-mbti-j: #3b82f6; /* blue-500 */
+            --tw-mbti-p: #f59e0b; /* amber-500 */
+        }
+        .text-disc-d { color: var(--tw-disc-d); }
+        .text-disc-i { color: var(--tw-disc-i); }
+        .text-disc-s { color: var(--tw-disc-s); }
+        .text-disc-c { color: var(--tw-disc-c); }
+        .bg-disc-d { background-color: var(--tw-disc-d); }
+
+        /* Ẩn các trang ban đầu */
+        .page-content {
+            display: none;
+        }
+        .message-bubble {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 20px;
+            margin-bottom: 10px;
+            word-wrap: break-word;
+        }
+        .user-message {
+            background-color: #3b82f6;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        .ai-message {
+            background-color: #e5e7eb;
+            color: #1f2937;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+        .page-bg-gradient {
+            background: linear-gradient(135deg, #e0f2fe 0%, #d1fae5 100%);
+        }
+        .chat-container {
+            height: calc(100vh - 200px);
+            min-height: 500px;
+        }
+        /* Style cho Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            transition: color 0.2s;
+        }
+        .close-btn:hover,
+        .close-btn:focus {
+            color: #333;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        /* Typing indicator styles */
+        .typing-indicator span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #9ca3af;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
+
+        /* --- STYLES FOR EXAM LIBRARY (THI THỬ) --- */
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+        .input-score {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            background-color: #f9fafb;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .input-score:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.25);
+        }
+        .btn-test-hub {
+            font-weight: 700;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            transition: all 0.3s;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transform: translateY(0);
+        }
+        .btn-test-hub:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .btn-indigo { background-color: #4f46e5; }
+        .btn-indigo:hover { background-color: #4338ca; }
+        .btn-blue { background-color: #2563eb; }
+        .btn-blue:hover { background-color: #1d4ed8; }
+        .btn-green { background-color: #16a34a; }
+        .btn-green:hover { background-color: #15803d; }
+
+
+        @media (max-width: 640px) {
+            .modal-content {
+                margin: 20px auto;
+                width: 95%;
+            }
+            .chat-container {
+                 min-height: 400px;
+            }
+        }
+        
+        /* Transition cho thanh tiến trình kết quả */
+        .progress-bar-transition {
+            transition: width 1s ease-out;
+        }
+    
+  /* Ẩn liên kết Kiểm tra API Gemini trên mọi thiết bị */
+  a[onclick*="api-test"] {
+    display: none !important;
+  }
+
+</style>
+</head>
+<body class="flex flex-col min-h-screen">
+    <!-- Thanh điều hướng -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-3 flex justify-between items-center flex-wrap">
+            <a href="#" class="text-2xl font-bold text-gray-800" onclick="showPage('home')">
+                <span class="text-indigo-600">Hướng</span>Nghiệp
+            </a>
+            <!-- Menu cho Desktop -->
+            <div class="hidden md:flex space-x-4">
+                <a href="#" class="text-gray-800 hover:text-indigo-600 font-medium transition duration-150" onclick="showPage('home')">Trang chủ</a>
+                <!-- Updated to quiz-hub -->
+                <a href="#" class="text-gray-800 hover:text-indigo-600 font-medium transition duration-150" onclick="showPage('quiz-hub')">Trắc nghiệm</a>
+                <a href="#" class="text-gray-800 hover:text-indigo-600 font-medium transition duration-150" onclick="showPage('search')">Tra cứu AI</a>
+                <a href="#" class="text-gray-800 hover:text-indigo-600 font-medium transition duration-150" onclick="showPage('advice')">Tâm sự & Lời khuyên</a>
+                <a href="#" class="text-gray-800 hover:text-indigo-600 font-medium transition duration-150" onclick="showPage('inspo')">Truyền cảm hứng</a>
+                <a href="#" class="text-gray-800 hover:text-indigo-600 font-medium transition duration-150" onclick="showPage('survey')">Góp ý & Khảo sát</a>
+                <a href="#" class="text-gray-800 hover:text-indigo-600 font-medium transition duration-150" onclick="showPage('admissions')">Tuyển sinh</a>
+                <a href="#" class="text-gray-800 hover:text-indigo-600 font-medium transition duration-150" onclick="showPage('social-media')">Cộng đồng</a>
+                <!-- NEW API Test Link -->
+                <a href="#" class="text-gray-800 hover:text-purple-600 font-medium transition duration-150" onclick="showPage('api-test')">Kiểm tra API Gemini</a>
+            </div>
+              <!-- Menu cho Mobile (đơn giản hóa) -->
+              <div id="mobile-menu-btn" class="md:hidden text-gray-800 cursor-pointer text-xl" onclick="toggleMobileMenu()">☰</div>
+        </div>
+        <!-- Menu Mobile mở rộng -->
+        <div id="mobile-menu" class="hidden md:hidden px-6 pb-3 space-y-2 bg-gray-50 border-t border-gray-200">
+            <a href="#" class="block text-gray-800 hover:text-indigo-600 font-medium transition duration-150 py-1" onclick="showPage('home'); toggleMobileMenu();">Trang chủ</a>
+            <!-- Updated to quiz-hub -->
+            <a href="#" class="block text-gray-800 hover:text-indigo-600 font-medium transition duration-150 py-1" onclick="showPage('quiz-hub'); toggleMobileMenu();">Trắc nghiệm</a>
+            <a href="#" class="block text-gray-800 hover:text-indigo-600 font-medium transition duration-150 py-1" onclick="showPage('search'); toggleMobileMenu();">Tra cứu AI</a>
+            <a href="#" class="block text-gray-800 hover:text-indigo-600 font-medium transition duration-150 py-1" onclick="showPage('advice'); toggleMobileMenu();">Tâm sự & Lời khuyên</a>
+            <a href="#" class="block text-gray-800 hover:text-indigo-600 font-medium transition duration-150 py-1" onclick="showPage('inspo'); toggleMobileMenu();">Truyền cảm hứng</a>
+            <a href="#" class="block text-gray-800 hover:text-indigo-600 font-medium transition duration-150 py-1" onclick="showPage('survey'); toggleMobileMenu();">Góp ý & Khảo sát</a>
+            <a href="#" class="block text-gray-800 hover:text-indigo-600 font-medium transition duration-150 py-1" onclick="showPage('admissions'); toggleMobileMenu();">Tuyển sinh</a>
+            <a href="#" class="block text-gray-800 hover:text-indigo-600 font-medium transition duration-150 py-1" onclick="showPage('social-media'); toggleMobileMenu();">Cộng đồng</a>
+            <!-- NEW API Test Link -->
+            <a href="#" class="block text-gray-800 hover:text-purple-600 font-medium transition duration-150 py-1" onclick="showPage('api-test'); toggleMobileMenu();">Kiểm tra API Gemini</a>
+        </div>
+    </nav>
+
+    <!-- Các trang nội dung -->
+    <main class="flex-grow container mx-auto px-6 py-12">
+        <!-- Trang chủ -->
+        <section id="home-page" class="page-content">
+            <section class="text-center py-20 page-bg-gradient rounded-3xl shadow-xl">
+                <h1 class="text-5xl font-extrabold text-gray-900 mb-4">
+                    Tìm kiếm con đường sự nghiệp của bạn
+                </h1>
+                <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+                    Khám phá bản thân, định hướng tương lai và lựa chọn ngành nghề phù hợp nhất với năng lực và sở thích của bạn.
+                </p>
+                <div class="flex justify-center space-x-4">
+                    <!-- Updated to quiz-hub -->
+                    <button class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-indigo-700 transition duration-300 transform hover:scale-105" onclick="showPage('quiz-hub')">
+                        Bắt đầu ngay
+                    </button>
+                </div>
+            </section>
+            <!-- Các thẻ tính năng -->
+            <section class="py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Thẻ 1: Trắc nghiệm tính cách (Updated OnClick to quiz-hub) -->
+                <div class="bg-white p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="text-5xl text-indigo-600 mb-4 text-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 mx-auto" viewBox="0 0 20 20" fill="currentColor">
+                           <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                           <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2 text-center">Trắc nghiệm DISC/Holland/MBTI</h3>
+                    <p class="text-gray-600 text-center">Hiểu rõ điểm mạnh, điểm yếu và sở thích của bản thân để đưa ra quyết định đúng đắn.</p>
+                    <div class="text-center mt-4">
+                        <button class="text-indigo-600 font-semibold hover:underline" onclick="showPage('quiz-hub')">Khám phá ngay &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- Thẻ 2: Tra cứu ngành nghề (Updated Icon) -->
+                <div class="bg-white p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="text-5xl text-indigo-600 mb-4 text-center">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 mx-auto" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2 text-center">Tra cứu ngành nghề AI</h3>
+                    <p class="text-gray-600 text-center">Sử dụng AI để tìm hiểu chi tiết về các ngành học, cơ hội việc làm và thị trường lao động.</p>
+                    <div class="text-center mt-4">
+                        <button class="text-indigo-600 font-semibold hover:underline" onclick="showPage('search')">Bắt đầu tra cứu &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- Thẻ 3: Tâm sự & Lời khuyên -->
+                <div class="bg-white p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="text-5xl text-green-600 mb-4 text-center">💡</div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2 text-center">Góc Tâm sự & Lời khuyên</h3>
+                    <p class="text-gray-600 text-center">Nhận sự đồng cảm và tư vấn chân thành từ AI để giải quyết những băn khoăn trong cuộc sống.</p>
+                    <div class="text-center mt-4">
+                        <button class="text-indigo-600 font-semibold hover:underline" onclick="showPage('advice')">Nhận lời khuyên &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- Thẻ 4: Góc Truyền cảm hứng -->
+                <div class="bg-white p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="text-5xl text-red-600 mb-4 text-center">⭐</div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2 text-center">Góc Truyền cảm hứng</h3>
+                    <p class="text-gray-600 text-center">Đọc các câu chuyện có thật về những người đã thành công trong sự nghiệp của họ.</p>
+                    <div class="text-center mt-4">
+                        <button class="text-indigo-600 font-semibold hover:underline" onclick="showPage('inspo')">Khám phá &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- Thẻ 5: Thông tin tuyển sinh -->
+                <div class="bg-white p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="text-5xl text-indigo-600 mb-4 text-center">📣</div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2 text-center">Thông tin tuyển sinh</h3>
+                    <p class="text-gray-600 text-center">Cập nhật tin tức mới nhất về các kỳ thi, phương thức xét tuyển và học bổng.</p>
+                    <div class="text-center mt-4">
+                        <button class="text-indigo-600 font-semibold hover:underline" onclick="showPage('admissions')">Xem chi tiết &rarr;</button>
+                    </div>
+                </div>
+                
+                <!-- Thẻ 6: Góp ý & Khảo sát -->
+                <div class="bg-white p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="text-5xl text-purple-600 mb-4 text-center">📝</div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2 text-center">Góp ý & Khảo sát</h3>
+                    <p class="text-gray-600 text-center">Đóng góp ý kiến và tham gia khảo sát để giúp chúng tôi cải thiện hệ thống.</p>
+                    <div class="text-center mt-4">
+                        <button class="text-indigo-600 font-semibold hover:underline" onclick="showPage('survey')">Đóng góp ngay &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- Thẻ 7: Mạng xã hội -->
+                <div class="bg-white p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="text-5xl text-indigo-600 mb-4 text-center">💬</div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2 text-center">Cộng đồng</h3>
+                    <p class="text-gray-600 text-center">Kết nối với cộng đồng, đặt câu hỏi và nhận lời khuyên từ các chuyên gia.</p>
+                    <div class="text-center mt-4">
+                        <button class="text-indigo-600 font-semibold hover:underline" onclick="showPage('social-media')">Tham gia cộng đồng &rarr;</button>
+                    </div>
+                </div>
+                
+                <!-- Thẻ 8: THI THỬ (Updated Onclick) -->
+                <div class="bg-white p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer" onclick="showPage('exam-library')">
+                    <div class="text-5xl text-red-600 mb-4 text-center">🔥</div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2 text-center">THI THỬ</h3>
+                    <p class="text-gray-600 text-center">Luyện tập thực chiến với đề thi chính thức, đề mới và bài ĐGNL.</p>
+                    <div class="text-center mt-4">
+                        <button class="text-red-600 font-semibold hover:underline">Chiến đấu ngay &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- Thẻ 9: Thông tin Học bổng (Updated Onclick) -->
+                <div class="bg-white p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer" onclick="showPage('scholarship')">
+                    <div class="text-5xl text-orange-500 mb-4 text-center">🏅</div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2 text-center">Thông tin Học bổng</h3>
+                    <p class="text-gray-600 text-center">Tổng hợp chương trình học bổng, hỗ trợ tài chính cho sinh viên.</p>
+                    <div class="text-center mt-4">
+                        <button class="text-orange-600 font-semibold hover:underline">Tìm kiếm ngay &rarr;</button>
+                    </div>
+                </div>
+                
+            </section>
+        </section>
+        
+        <!-- Trang Trắc nghiệm HUB (Mới: Thay thế nội dung quiz-page placeholder) -->
+        <section id="quiz-hub-page" class="page-content">
+             <h1 class="text-4xl font-bold text-center mb-10 text-gray-900">Chọn Bài Trắc Nghiệm Khám Phá Bản Thân</h1>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                
+                <!-- Thẻ DISC -->
+                <div class="bg-white p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-t-8 border-red-500">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2 text-center">DISC (Phong cách hành vi)</h3>
+                    <p class="text-gray-600 text-center text-sm">Hiểu cách bạn phản ứng với vấn đề, con người, tốc độ và quy tắc. (30 Câu)</p>
+                    <div class="text-center mt-4">
+                        <button class="bg-red-500 text-white font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-red-600 transition" onclick="initializeQuiz('disc'); showPage('quiz-disc')">Làm bài ngay &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- Thẻ Holland (RIASEC) -->
+                <div class="bg-white p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-t-8 border-indigo-500">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2 text-center">Holland (Sở thích nghề nghiệp)</h3>
+                    <p class="text-gray-600 text-center text-sm">Xác định nhóm nghề nghiệp phù hợp với sở thích cá nhân (Realistic, Investigative...). (30 Câu)</p>
+                    <div class="text-center mt-4">
+                        <button class="bg-indigo-500 text-white font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-indigo-600 transition" onclick="initializeQuiz('holland'); showPage('quiz-holland')">Làm bài ngay &rarr;</button>
+                    </div>
+                </div>
+                
+                <!-- Thẻ MBTI -->
+                <div class="bg-white p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-t-8 border-green-500">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2 text-center">MBTI (Tâm lý học)</h3>
+                    <p class="text-gray-600 text-center text-sm">Tìm ra loại hình tính cách (nhóm 4 chữ cái) và cách bạn tương tác với thế giới. (40 Câu)</p>
+                    <div class="text-center mt-4">
+                        <button class="bg-green-500 text-white font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-green-600 transition" onclick="initializeQuiz('mbti'); showPage('quiz-mbti')">Làm bài ngay &rarr;</button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Trang trắc nghiệm DISC (Giữ nguyên ID) -->
+        <section id="quiz-disc-page" class="page-content">
+            <div id="disc-quiz-container" class="w-full max-w-4xl mx-auto bg-white shadow-2xl rounded-xl overflow-hidden p-6 md:p-10">
+                <!-- Header -->
+                <header class="text-center mb-8">
+                    <h1 class="text-4xl font-extrabold text-gray-900 mb-2">Trắc Nghiệm Tính Cách <span class="text-disc-i">DISC</span></h1>
+                    <p class="text-lg text-gray-500">30 câu hỏi - Khám phá phong cách hành vi tự nhiên của bạn</p>
+                    <div class="h-1 bg-gradient-to-r from-red-500 via-blue-500 to-amber-500 rounded mt-3"></div>
+                </header>
+                
+                <!-- Thanh tiến trình tổng thể -->
+                <div id="disc-overall-progress-container" class="mb-8">
+                    <p class="text-sm font-medium text-gray-600 mb-2">Tiến độ Trắc nghiệm</p>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <!-- Thanh tổng thể (chạy từ 0% đến 100% khi làm bài) -->
+                        <div id="disc-overall-progress-bar" class="bg-disc-s h-2.5 rounded-full transition-all duration-500 ease-out" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <!-- Quiz Area (Khu vực câu hỏi) -->
+                <div id="disc-quiz-area">
+                    <!-- Questions will be dynamically inserted here -->
+                </div>
+
+                <!-- Result Area (Khu vực kết quả) -->
+                <div id="disc-result-area" class="hidden text-center">
+                    <h2 class="text-3xl font-bold mb-4 text-gray-800">🎉 Kết Quả Tính Cách DISC Của Bạn</h2>
+                    <div id="disc-result-profile" class="p-6 md:p-8 rounded-xl shadow-lg border-t-8 border-disc-i bg-white transition-all duration-500">
+                        <div id="disc-main-style-display" class="mb-4">
+                            <!-- Main style will be inserted here -->
+                        </div>
+
+                        <!-- Score Chart -->
+                        <div class="grid grid-cols-2 gap-4 text-left mt-6">
+                            
+                            <!-- D - Dominance -->
+                            <div class="flex items-center space-x-3 p-3 bg-red-50 rounded-lg shadow-md">
+                                <span class="text-disc-d text-2xl font-bold">D</span>
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-baseline">
+                                        <p class="text-sm font-semibold text-gray-700">Thống trị (Dominance)</p>
+                                        <span id="disc-score-count-d" class="text-base font-bold text-disc-d">0 / 30</span> <!-- HIỂN THỊ ĐIỂM -->
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <!-- Thanh này sẽ chạy mượt mà khi xem kết quả -->
+                                        <div id="disc-score-d" class="h-2.5 rounded-full progress-bar-transition" style="background-color: var(--tw-disc-d); width: 0%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- I - Influence -->
+                            <div class="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg shadow-md">
+                                <span class="text-disc-i text-2xl font-bold">I</span>
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-baseline">
+                                        <p class="text-sm font-semibold text-gray-700">Ảnh hưởng (Influence)</p>
+                                        <span id="disc-score-count-i" class="text-base font-bold text-disc-i">0 / 30</span> <!-- HIỂN THỊ ĐIỂM -->
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <!-- Thanh này sẽ chạy mượt mà khi xem kết quả -->
+                                        <div id="disc-score-i" class="h-2.5 rounded-full progress-bar-transition" style="background-color: var(--tw-disc-i); width: 0%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- S - Steadiness -->
+                            <div class="flex items-center space-x-3 p-3 bg-green-50 rounded-lg shadow-md">
+                                <span class="text-disc-s text-2xl font-bold">S</span>
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-baseline">
+                                        <p class="text-sm font-semibold text-gray-700">Kiên định (Steadiness)</p>
+                                        <span id="disc-score-count-s" class="text-base font-bold text-disc-s">0 / 30</span> <!-- HIỂN THỊ ĐIỂM -->
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <!-- Thanh này sẽ chạy mượt mà khi xem kết quả -->
+                                        <div id="disc-score-s" class="h-2.5 rounded-full progress-bar-transition" style="background-color: var(--tw-disc-s); width: 0%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- C - Conscientiousness -->
+                            <div class="flex items-center space-x-3 p-3 bg-yellow-50 rounded-lg shadow-md">
+                                <span class="text-disc-c text-2xl font-bold">C</span>
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-baseline">
+                                        <p class="text-sm font-semibold text-gray-700">Tuân thủ (Conscientiousness)</p>
+                                        <span id="disc-score-count-c" class="text-base font-bold text-disc-c">0 / 30</span> <!-- HIỂN THỊ ĐIỂM -->
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <!-- Thanh này sẽ chạy mượt mà khi xem kết quả -->
+                                        <div id="disc-score-c" class="h-2.5 rounded-full progress-bar-transition" style="background-color: var(--tw-disc-c); width: 0%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p id="disc-result-description" class="mt-6 text-gray-600 leading-relaxed italic"></p>
+
+                        <button onclick="DISCEngine.restartQuiz()" class="mt-8 bg-gray-700 hover:bg-gray-900 text-white font-bold py-3 px-6 rounded-lg transition duration-300 transform hover:scale-105 shadow-md">
+                            Làm lại Trắc nghiệm
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trang trắc nghiệm Holland (Mới) -->
+        <section id="quiz-holland-page" class="page-content">
+            <div id="holland-quiz-container" class="w-full max-w-4xl mx-auto bg-white shadow-2xl rounded-xl overflow-hidden p-6 md:p-10">
+                <!-- Header -->
+                <header class="text-center mb-8">
+                    <h1 class="text-4xl font-extrabold text-gray-900 mb-2">Trắc Nghiệm Sở Thích Nghề Nghiệp <span class="text-indigo-600">Holland (RIASEC)</span></h1>
+                    <p class="text-lg text-gray-500">30 câu hỏi - Khám phá nhóm nghề nghiệp phù hợp với sở thích của bạn.</p>
+                    <div class="h-1 bg-gradient-to-r from-red-700 via-purple-500 to-gray-600 rounded mt-3"></div>
+                </header>
+                
+                <!-- Thanh tiến trình tổng thể -->
+                <div id="holland-overall-progress-container" class="mb-8">
+                    <p class="text-sm font-medium text-gray-600 mb-2">Tiến độ Trắc nghiệm</p>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div id="holland-overall-progress-bar" class="bg-indigo-500 h-2.5 rounded-full transition-all duration-500 ease-out" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <!-- Quiz Area (Khu vực câu hỏi) -->
+                <div id="holland-quiz-area">
+                    <!-- Questions will be dynamically inserted here -->
+                </div>
+
+                <!-- Result Area (Khu vực kết quả) -->
+                <div id="holland-result-area" class="hidden text-center">
+                    <h2 class="text-3xl font-bold mb-4 text-gray-800">🎉 Kết Quả Mã Holland (RIASEC) Của Bạn</h2>
+                    <div id="holland-result-profile" class="p-6 md:p-8 rounded-xl shadow-lg border-t-8 border-indigo-500 bg-white transition-all duration-500">
+                        <div id="holland-main-style-display" class="mb-4">
+                            <!-- Main style will be inserted here -->
+                        </div>
+
+                        <!-- Score Chart -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left mt-6" id="holland-score-chart">
+                            <!-- Holland Scores will be dynamically inserted here -->
+                        </div>
+
+                        <p id="holland-result-description" class="mt-6 text-gray-600 leading-relaxed italic"></p>
+
+                        <button onclick="HollandEngine.restartQuiz()" class="mt-8 bg-gray-700 hover:bg-gray-900 text-white font-bold py-3 px-6 rounded-lg transition duration-300 transform hover:scale-105 shadow-md">
+                            Làm lại Trắc nghiệm
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trang trắc nghiệm MBTI (Mới) -->
+        <section id="quiz-mbti-page" class="page-content">
+            <div id="mbti-quiz-container" class="w-full max-w-4xl mx-auto bg-white shadow-2xl rounded-xl overflow-hidden p-6 md:p-10">
+                <!-- Header -->
+                <header class="text-center mb-8">
+                    <h1 class="text-4xl font-extrabold text-gray-900 mb-2">Trắc Nghiệm Tính Cách <span class="text-green-600">MBTI</span></h1>
+                    <p class="text-lg text-gray-500">40 câu hỏi - Khám phá 4 cặp đối lập chính trong tính cách của bạn.</p>
+                    <div class="h-1 bg-gradient-to-r from-green-500 via-blue-500 to-pink-400 rounded mt-3"></div>
+                </header>
+                
+                <!-- Thanh tiến trình tổng thể -->
+                <div id="mbti-overall-progress-container" class="mb-8">
+                    <p class="text-sm font-medium text-gray-600 mb-2">Tiến độ Trắc nghiệm</p>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div id="mbti-overall-progress-bar" class="bg-green-500 h-2.5 rounded-full transition-all duration-500 ease-out" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <!-- Quiz Area (Khu vực câu hỏi) -->
+                <div id="mbti-quiz-area">
+                    <!-- Questions will be dynamically inserted here -->
+                </div>
+
+                <!-- Result Area (Khu vực kết quả) -->
+                <div id="mbti-result-area" class="hidden text-center">
+                    <h2 class="text-3xl font-bold mb-4 text-gray-800">🎉 Kết Quả Tính Cách MBTI Của Bạn</h2>
+                    <div id="mbti-result-profile" class="p-6 md:p-8 rounded-xl shadow-lg border-t-8 border-green-500 bg-white transition-all duration-500">
+                        <div id="mbti-main-style-display" class="mb-4">
+                            <!-- Main style will be inserted here -->
+                        </div>
+                        <p id="mbti-result-description" class="mt-6 text-gray-600 leading-relaxed italic"></p>
+                        <button onclick="MBTIEngine.restartQuiz()" class="mt-8 bg-gray-700 hover:bg-gray-900 text-white font-bold py-3 px-6 rounded-lg transition duration-300 transform hover:scale-105 shadow-md">
+                            Làm lại Trắc nghiệm
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trang tra cứu ngành nghề (Chatbot AI) -->
+        <section id="search-page" class="page-content">
+            <h1 class="text-4xl font-bold text-center mb-8 text-gray-900">Hỏi đáp Ngành nghề cùng AI (Có trích dẫn nguồn)</h1>
+            <div class="bg-white p-8 rounded-3xl shadow-xl flex flex-col chat-container">
+                <div id="chat-history" class="flex-grow overflow-y-auto p-4 mb-4 flex flex-col space-y-4 rounded-xl border border-gray-200 bg-gray-50">
+                    <!-- Lịch sử chat sẽ được hiển thị tại đây -->
+                </div>
+                <div class="flex items-center space-x-4">
+                    <input type="text" id="search-user-input" placeholder="Bạn muốn hỏi về ngành nghề gì?" class="flex-grow p-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500" disabled>
+                    <button id="search-send-btn" class="bg-indigo-600 text-white font-bold p-3 rounded-full shadow-lg hover:bg-indigo-700 transition duration-300 disabled:opacity-50" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+                            <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.917H3.75a.75.75 0 00-.75.75v6.75a.75.75 0 001.085.67L17.25 4.75l-13.772-2.345Z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trang Tâm sự & Lời khuyên (Chatbot Tư vấn) -->
+        <section id="advice-page" class="page-content">
+            <h1 class="text-4xl font-bold text-center mb-8 text-gray-900">Góc Tâm sự & Lời khuyên Cuộc sống (AI đồng cảm)</h1>
+            <div class="bg-white p-8 rounded-3xl shadow-xl flex flex-col chat-container">
+                <div id="advice-chat-history" class="flex-grow overflow-y-auto p-4 mb-4 flex flex-col space-y-4 rounded-xl border border-gray-200 bg-gray-50">
+                    <!-- Lịch sử chat sẽ được hiển thị tại đây -->
+                </div>
+                <div class="flex items-center space-x-4">
+                    <input type="text" id="advice-user-input" placeholder="Bạn đang cảm thấy thế nào? Hãy chia sẻ nhé." class="flex-grow p-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500" disabled>
+                    <button id="advice-send-btn" class="bg-green-600 text-white font-bold p-3 rounded-full shadow-lg hover:bg-green-700 transition duration-300 disabled:opacity-50" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+                            <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.917H3.75a.75.75 0 00-.75.75v6.75a.75.75 0 001.085.67L17.25 4.75l-13.772-2.345Z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Trang Truyền cảm hứng -->
+        <!-- ... (Code giữ nguyên) ... -->
+        <section id="inspo-page" class="page-content">
+            <h1 class="text-4xl font-bold text-center mb-10 text-gray-900">Góc Truyền cảm hứng: Những Câu Chuyện Thật</h1>
+            <p class="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
+                Khám phá hành trình đầy nỗ lực, thất bại và thành công của những người trẻ Việt Nam đã tìm thấy con đường sự nghiệp của mình.
+            </p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Câu chuyện 1 -->
+                <div class="bg-white p-8 rounded-3xl shadow-xl border-l-4 border-red-500">
+                    <h3 class="text-2xl font-bold text-red-700 mb-3">Thảo: Từ Blogger Ẩm Thực đến CEO Ứng dụng nấu ăn</h3>
+                    <p class="text-sm text-gray-500 mb-4">Lĩnh vực: Công nghệ & Ẩm thực | Mã Holland: ASE</p>
+                    <p class="text-gray-700 mb-4">
+                        Thảo bắt đầu chỉ với một blog nhỏ chia sẻ công thức nấu ăn. Sau 3 năm, cô nhận ra vấn đề lớn nhất của người dùng là quản lý công thức và lên thực đơn...
+                    </p>
+                    <button class="text-indigo-600 font-semibold hover:underline" onclick="showStoryModal('thao')">Đọc toàn bộ câu chuyện &rarr;</button>
+                </div>
+
+                <!-- Câu chuyện 2 -->
+                <div class="bg-white p-8 rounded-3xl shadow-xl border-l-4 border-green-500">
+                    <h3 class="text-2xl font-bold text-green-700 mb-3">Hoàng: Bỏ Kỹ thuật Xây dựng để theo đuổi Thiết kế Đồ họa</h3>
+                    <p class="text-sm text-gray-500 mb-4">Lĩnh vực: Sáng tạo | Mã Holland: AIE</p>
+                    <p class="text-gray-700 mb-4">
+                        Hoàng từng học Xây dựng theo định hướng gia đình, nhưng luôn cảm thấy không phù hợp. Sau hai năm, cậu quyết định tạm dừng để tham gia các khóa học thiết kế online...
+                    </p>
+                    <button class="text-indigo-600 font-semibold hover:underline" onclick="showStoryModal('hoang')">Đọc toàn bộ câu chuyện &rarr;</button>
+                </div>
+
+                <!-- Câu chuyện 3 -->
+                <div class="bg-white p-8 rounded-3xl shadow-xl border-l-4 border-blue-500 lg:col-span-2">
+                    <h3 class="text-2xl font-bold text-blue-700 mb-3">Lan: Mang Công nghệ vào Ruộng đồng</h3>
+                    <p class="text-sm text-gray-500 mb-4">Lĩnh vực: Nông nghiệp công nghệ | Mã Holland: RIC</p>
+                    <p class="text-gray-700 mb-4">
+                        Lan tốt nghiệp ngành Công nghệ sinh học và quyết tâm về quê phát triển mô hình nông nghiệp thông minh. Cô ứng dụng IoT và phân tích dữ liệu để quản lý chất lượng đất và dinh dưỡng...
+                    </p>
+                    <button class="text-indigo-600 font-semibold hover:underline" onclick="showStoryModal('lan')">Đọc toàn bộ câu chuyện &rarr;</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trang Khảo sát & Góp ý -->
+        <!-- ... (Code giữ nguyên) ... -->
+        <section id="survey-page" class="page-content">
+            <h1 class="text-4xl font-bold text-center mb-8 text-gray-900">Góp ý & Khảo sát Người dùng</h1>
+            <div class="bg-white p-8 rounded-3xl shadow-xl h-[80vh] min-h-[600px] flex flex-col">
+                <p class="text-center text-gray-600 mb-4">
+                    Ý kiến của bạn là vô cùng quan trọng để chúng tôi cải thiện hệ sinh thái định hướng nghề nghiệp này. Xin cảm ơn bạn đã dành thời gian!
+                </p>
+                <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScPlm_y_VS_fiVGtQBC_2auIino13tKOrEDB0DtWKqgagRXSQ/viewform?usp=embed_facebook"
+                        width="100%"
+                        height="100%"
+                        frameborder="0"
+                        marginheight="0"
+                        marginwidth="0"
+                        class="rounded-2xl border border-gray-300 flex-grow"
+                        title="Form Khảo sát">
+                    Đang tải form khảo sát...
+                </iframe>
+            </div>
+        </section>
+        
+        <!-- Trang tuyển sinh -->
+        <!-- ... (Code giữ nguyên) ... -->
+        <section id="admissions-page" class="page-content">
+            <h1 class="text-4xl font-bold text-center mb-8">Thông tin tuyển sinh</h1>
+            <div class="bg-white p-8 rounded-3xl shadow-xl">
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-8">
+                    <button class="admissions-nav-btn bg-indigo-600 text-white font-semibold py-3 px-4 rounded-xl shadow hover:bg-indigo-700 transition-colors" data-key="forms" onclick="showAdmissionsContent('forms')">
+                        Hình thức Tuyển sinh
+                    </button>
+                    <button class="admissions-nav-btn bg-indigo-100 text-indigo-800 font-semibold py-3 px-4 rounded-xl shadow hover:bg-indigo-200 transition-colors" data-key="universities" onclick="showAdmissionsContent('universities')">
+                        Trường Đại học, Cao Đẳng
+                    </button>
+                    <button class="admissions-nav-btn bg-indigo-100 text-indigo-800 font-semibold py-3 px-4 rounded-xl shadow hover:bg-indigo-200 transition-colors" data-key="news" onclick="showAdmissionsContent('news')">
+                        Thông báo, Tin tức
+                    </button>
+                    <button class="admissions-nav-btn bg-indigo-100 text-indigo-800 font-semibold py-3 px-4 rounded-xl shadow hover:bg-indigo-200 transition-colors" data-key="scholarships" onclick="showAdmissionsContent('scholarships')">
+                        Học bổng
+                    </button>
+                </div>
+                <div id="admissions-content-display" class="p-6 bg-gray-50 rounded-2xl border border-gray-200 min-h-[200px]">
+                    <!-- Nội dung tuyển sinh sẽ hiển thị ở đây -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Trang mạng xã hội -->
+        <!-- ... (Code giữ nguyên) ... -->
+        <section id="social-media-page" class="page-content">
+            <h1 class="text-4xl font-bold text-center mb-8">Tham gia cộng đồng</h1>
+            <p class="text-center text-gray-600 mb-12">
+                Kết nối với chúng tôi qua các nền tảng mạng xã hội để cập nhật những thông tin mới nhất.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <a href="http://www.youtube.com/@EDUPATH-f4e" target="_blank" class="block bg-white p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 text-center">
+                    <div class="text-6xl text-red-500 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="currentColor" class="w-16 h-16 mx-auto">
+                            <path d="M549.655 124.083c-6.281-23.65-24.787-42.276-48.284-48.597C458.781 64 288 64 288 64S117.22 64 74.629 75.486c-23.497 6.322-42.003 24.947-48.284 48.597-11.412 42.867-11.412 132.305-11.412 132.305s0 89.438 11.412 132.305c6.281 23.65 24.787 41.517 48.284 47.838C117.22 448 288 448 288 448s170.781 0 213.371-11.486c23.497-6.321 42.003-24.188 48.284-47.838 11.412-42.867 11.412-132.305 11.412-132.305s0-89.438-11.412-132.305zm-317.51 213.508V175.147l142.753 71.791-142.753 71.791z"/>
+                        </svg>
+                    </div>
+                    <h4 class="text-2xl font-bold mb-2">YouTube</h4>
+                    <p class="text-gray-600">Xem các video chuyên sâu và workshop về định hướng nghề nghiệp.</p>
+                    <span class="inline-block mt-4 text-indigo-600 font-semibold hover:underline">Theo dõi ngay &rarr;</span>
+                </a>
+                <a href="https://www.facebook.com/profile.php?id=61582417071028" target="_blank" class="block bg-white p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 text-center">
+                    <div class="text-6xl text-blue-600 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" class="w-16 h-16 mx-auto">
+                            <path d="M504 256C504 119 393 8 256 8S8 119 8 256c0 123.78 90.69 226.38 209.25 245V327.69h-63V256h63v-54.64c0-62.15 37-96.48 93.67-96.48 27.14 0 55.52 4.84 55.52 4.84v61h-31.28c-30.8 0-40.42 19.12-40.42 38.73V256h68.78l-11 71.69h-57.78V489C413.31 482.38 504 379.78 504 256z"/>
+                        </svg>
+                    </div>
+                    <h4 class="text-2xl font-bold mb-2">Facebook</h4>
+                    <p class="text-gray-600">Tham gia cộng đồng, hỏi đáp và nhận tư vấn trực tiếp.</p>
+                    <span class="inline-block mt-4 text-indigo-600 font-semibold hover:underline">Theo dõi ngay &rarr;</span>
+                </a>
+                <a href="https://tiktok.com/@edupath.tng.lai.c" target="_blank" class="block bg-white p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 text-center">
+                    <div class="text-6xl text-black mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" class="w-16 h-16 mx-auto">
+                            <path d="M448,209.91a210.06,210.06,0,0,1-122.77-39.25V349.38A162.55,162.55,0,1,1,185,188.31V278.2h213.13V209.91ZM185,324.42A76.25,76.25,0,1,0,108.75,248.17,76.15,76.15,0,0,0,185,324.42Z"/>
+                        </svg>
+                    </div>
+                    <h4 class="text-2xl font-bold mb-2">TikTok</h4>
+                    <p class="text-gray-600">Xem các video ngắn và mẹo hữu ích về chọn ngành, nghề.</p>
+                    <span class="inline-block mt-4 text-indigo-600 font-semibold hover:underline">Theo dõi ngay &rarr;</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Scholarship Page (FIXED ID and CLASS) -->
+        <!-- ... (Code giữ nguyên) ... -->
+        <section id="scholarship-page" class="page-content">
+             <h1 class="text-4xl font-bold text-gray-800 mb-8 text-center">Thông Tin Học Bổng & Hỗ Trợ Tài Chính</h1>
+            <div class="bg-white p-8 rounded-3xl card-shadow">
+                <p class="text-lg text-gray-700 mb-8 text-center max-w-3xl mx-auto">Việc tìm kiếm học bổng giúp giảm bớt gánh nặng tài chính, đặc biệt quan trọng với học sinh ở khu vực nông thôn, khó khăn.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="p-6 border-l-4 border-indigo-500 bg-indigo-50 rounded-lg">
+                        <h4 class="font-bold text-xl text-indigo-700 mb-2">Học bổng Tuyển sinh (ĐH)</h4>
+                        <p class="text-sm text-gray-600">Dựa trên điểm thi THPT hoặc điểm học bạ xuất sắc. Giá trị: 50% - 100% học phí năm đầu.</p>
+                        <span class="text-xs font-semibold text-indigo-600 mt-2 block">Dành cho: Học sinh có thành tích cao.</span>
+                    </div>
+                    <div class="p-6 border-l-4 border-green-500 bg-green-50 rounded-lg">
+                        <h4 class="font-bold text-xl text-green-700 mb-2">Học bổng Vượt Khó</h4>
+                        <p class="text-sm text-gray-600">Hỗ trợ học sinh có hoàn cảnh khó khăn. Giá trị: Hỗ trợ sinh hoạt phí và dụng cụ học tập.</p>
+                        <span class="text-xs font-semibold text-green-600 mt-2 block">Dành cho: Học sinh khó khăn, vùng sâu/xa.</span>
+                    </div>
+                    <div class="p-6 border-l-4 border-yellow-500 bg-yellow-50 rounded-lg">
+                        <h4 class="font-bold text-xl text-yellow-700 mb-2">Học bổng Doanh nghiệp</h4>
+                        <p class="text-sm text-gray-600">Dành cho các ngành Kỹ thuật, IT, Nông nghiệp. Yêu cầu cam kết làm việc sau tốt nghiệp.</p>
+                        <span class="text-xs font-semibold text-yellow-600 mt-2 block">Dành cho: Học sinh theo ngành kỹ thuật, IT.</span>
+                    </div>
+                </div>
+
+                <h4 class="text-2xl font-bold text-gray-800 mt-10 mb-4">Các Bước Tìm Kiếm Học Bổng Chủ Động:</h4>
+                <ul class="list-disc list-inside text-gray-700 space-y-2">
+                    <li>Tìm kiếm thông báo trên website của các trường Đại học (mục Tuyển sinh/Tài chính).</li>
+                    <li>Tham khảo các tổ chức phi lợi nhuận (ví dụ: Quỹ Khuyến học địa phương, Quỹ Tấm Lòng Vàng...).</li>
+                    <li>Liên hệ trực tiếp với Phòng Công tác Sinh viên của trường THPT để nắm bắt thông tin nhanh nhất.</li>
+                </ul>
+                <button class="mt-8 bg-orange-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-orange-700 transition duration-300" onclick="showCustomModal('Thông báo', 'Tính năng tra cứu chi tiết học bổng đang được phát triển và sẽ sớm ra mắt!')">
+                    Tra Cứu Danh Sách Học Bổng Chi Tiết (Sắp ra mắt)
+                </button>
+            </div>
+        </section>
+
+        <!-- Exam Library Page (FIXED ID and CLASS) -->
+        <!-- ... (Code giữ nguyên) ... -->
+        <section id="exam-library-page" class="page-content">
+            <h1 class="text-4xl font-bold text-gray-800 mb-8 text-center">Khu Vực Thi Thử: Luyện Tập Thực Chiến</h1>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Card 1: Official Exams -->
+                <div class="bg-white p-6 rounded-2xl card-shadow flex flex-col">
+                    <div class="flex-grow">
+                        <h4 class="text-xl font-bold text-gray-900 mb-2">1. Đề Thi Chính Thức Các Năm</h4>
+                        <p class="text-gray-500 text-sm mb-4">Làm quen với cấu trúc và độ khó của đề thi Tốt nghiệp THPT QG các năm trước.</p>
+                        <p class="text-xs text-indigo-600 mb-4 font-semibold">Chấm điểm & biết kết quả tức thì!</p>
+                        
+                        <div class="space-y-4">
+                            <select id="official-exam-year" class="input-score">
+                                <option value="">-- Chọn Năm Thi --</option>
+                                <option value="2024">Đề thi 2024</option>
+                                <option value="2023">Đề thi 2023</option>
+                            </select>
+                            <select id="official-exam-subject" class="input-score">
+                                <option value="">-- Chọn Bài thi Môn --</option>
+                                <option value="Toan">Toán</option>
+                                <option value="NgoaiNgu">Ngoại Ngữ (Tiếng Anh)</option>
+                                <option value="Ly">Vật Lý</option>
+                                <option value="Hoa">Hóa Học</option>
+                                <option value="Sinh">Sinh Học</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button onclick="linkToAzota('thpt_official')" class="w-full btn-test-hub btn-indigo mt-6">
+                        Bắt đầu Thi Thử
+                    </button>
+                </div>
+
+                <!-- Card 2: New Exams -->
+                <div class="bg-white p-6 rounded-2xl card-shadow flex flex-col justify-between">
+                    <div>
+                        <h4 class="text-xl font-bold text-gray-900 mb-2">2. Thi Thử Đề Mới (Sở GD)</h4>
+                        <p class="text-gray-500 text-sm mb-4">Luyện tập các đề thi thử mới nhất từ các Sở Giáo dục trên toàn quốc.</p>
+                        <p class="text-xs text-blue-500 mb-3 font-semibold">Chấm điểm & biết kết quả tức thì!</p>
+                    </div>
+                    <button onclick="linkToAzota('thpt_new')" class="w-full btn-test-hub btn-blue mt-6">
+                        Khám Phá Ngân Hàng Đề
+                    </button>
+                </div>
+
+                <!-- Card 3: Competency Exams -->
+                <div class="bg-white p-6 rounded-2xl card-shadow flex flex-col justify-between">
+                    <div>
+                        <h4 class="text-xl font-bold text-gray-900 mb-2">3. Thi Thử Đánh giá Năng lực</h4>
+                        <p class="text-gray-500 text-sm mb-4">Mô phỏng bài thi ĐGNL (ĐHQG TPHCM, Hà Nội) để làm quen với dạng câu hỏi tư duy.</p>
+                        <p class="text-xs text-green-500 mb-3 font-semibold">Chấm điểm & biết kết quả tức thì!</p>
+                    </div>
+                    <button onclick="linkToAzota('dgnl')" class="w-full btn-test-hub btn-green mt-6">
+                        Luyện Tập ĐGNL
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Trang API Test (MỚI) -->
+        <section id="api-test-page" class="page-content">
+            <h1 class="text-4xl font-bold text-center mb-8 text-gray-900">Kiểm tra API Gemini Trực tiếp</h1>
+            <div class="bg-white p-8 rounded-3xl shadow-xl max-w-4xl mx-auto">
+                <p class="text-gray-600 mb-6">Sử dụng form dưới đây để gửi trực tiếp prompt (câu lệnh) tới API Gemini-1.5-Flash.</p>
+                <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 items-center">
+                    <input id="api-q" placeholder="Nhập prompt (ví dụ: Viết 3 mẹo học tập hiệu quả)..." class="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    <button id="api-go" class="bg-purple-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-purple-700 transition duration-300 w-full md:w-auto">
+                        Gọi API
+                    </button>
+                </div>
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Kết quả API:</h3>
+                    <pre id="api-out" class="w-full bg-gray-50 border border-gray-200 p-4 rounded-lg overflow-x-auto text-sm" style="white-space:pre-wrap; min-height: 150px;">(Kết quả sẽ hiển thị ở đây)</pre>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal (Cửa sổ pop-up) để hiển thị câu chuyện chi tiết -->
+    <div id="storyModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeStoryModal()">&times;</span>
+            <div id="modal-story-content" class="pt-4">
+                <!-- Nội dung câu chuyện chi tiết sẽ được chèn vào đây -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Custom Alert Modal (Thay thế cho window.alert) -->
+    <div id="customAlertModal" class="modal">
+        <div class="modal-content max-w-sm">
+            <span class="close-btn" onclick="document.getElementById('customAlertModal').style.display='none'">&times;</span>
+            <h3 id="customAlertTitle" class="text-2xl font-bold text-indigo-600 mb-4"></h3>
+            <p id="customAlertMessage" class="text-gray-700"></p>
+            <div class="mt-6 text-right">
+                <button class="bg-indigo-600 text-white font-bold py-2 px-6 rounded-full hover:bg-indigo-700 transition" onclick="document.getElementById('customAlertModal').style.display='none'">
+                    Đã hiểu
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Phần chân trang -->
+    <footer class="bg-gray-800 text-white py-6">
+        <div class="container mx-auto text-center text-gray-400">
+            &copy; 2025 Hệ sinh thái định hướng nghề nghiệp. Đã đăng ký bản quyền.
+            <div class="mt-2 text-sm">Lượt truy cập: <span id="visitor-count">0</span></div>
+        </div>
+    </footer>
+
+    <script>
+        // --- API Key ---
+        const apiKey = "AIzaSyDmA3KF2x1tM_EgVjfNchjTODgmPf9v5yI"; // Canvas sẽ tự động cung cấp API Key
+        const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"; 
+        
+        // --- QUIZ ENGINES (DISC, Holland, MBTI) ---
+
+        // Hàm chung để tạo SVG Icon 
+        function getTraitIcon(trait) {
+            switch (trait) {
+                case 'D': return `<svg class="w-8 h-8 text-disc-d" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>`;
+                case 'I': return `<svg class="w-8 h-8 text-disc-i" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.292"></path></svg>`;
+                case 'S': return `<svg class="w-8 h-8 text-disc-s" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+                case 'C': return `<svg class="w-8 h-8 text-disc-c" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.664 5.176-1.374 9-6.073 9-11.664a12.02 12.02 0 00-.382-2.816z"></path></svg>`;
+                case 'R': return `<svg class="w-8 h-8" style="color: var(--tw-holland-r);" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10m-8-4h.01"></path></svg>`; // Realistic - Tools
+                case 'I': return `<svg class="w-8 h-8" style="color: var(--tw-holland-i);" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 19v2m14-2v2M5 5v2m14-2v2M12 11h.01M12 15h.01M8 15h.01M16 15h.01M8 11h.01M16 11h.01M12 5a2 2 0 110-4 2 2 0 010 4zm0 2a2 2 0 100 4 2 2 0 000-4z"></path></svg>`; // Investigative - Microscope
+                case 'A': return `<svg class="w-8 h-8" style="color: var(--tw-holland-a);" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 16h4m10 0h4M12 4v16"></path></svg>`; // Artistic - Palette/Art
+                case 'S': return `<svg class="w-8 h-8" style="color: var(--tw-holland-s);" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h-4a2 2 0 01-2-2v-2a2 2 0 012-2h4a2 2 0 012 2v2a2 2 0 01-2 2zM9 18a2 2 0 01-2-2V8a2 2 0 012-2h6a2 2 0 012 2v8M12 6V4M15 4h-6"></path></svg>`; // Social - Group/People
+                case 'E': return `<svg class="w-8 h-8" style="color: var(--tw-holland-e);" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>`; // Enterprising - Leadership
+                case 'C': return `<svg class="w-8 h-8" style="color: var(--tw-holland-c);" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>`; // Conventional - Organization/Structure
+                default: return '❓';
+            }
+        }
+        
+        // --- 1. DISC Quiz Engine ---
+        const DISCEngine = (function() {
+             // Mảng 30 câu hỏi DISC
+            const fullQuestionsList = [
+                {
+                    text: "Khi làm việc nhóm, điều gì mô tả bạn tốt nhất?",
+                    options: [
+                        { trait: 'D', text: "Tôi thích **lãnh đạo** và kiểm soát kết quả." },
+                        { trait: 'I', text: "Tôi mang lại sự **nhiệt tình** và tập trung vào các ý tưởng mới." },
+                        { trait: 'S', text: "Tôi đảm bảo sự **ổn định** và hỗ trợ đồng đội." },
+                        { trait: 'C', text: "Tôi chú trọng **chất lượng**, quy trình và chi tiết." }
+                    ]
+                },
+                {
+                    text: "Trong tình huống xung đột hoặc áp lực cao, phản ứng của bạn là gì?",
+                    options: [
+                        { trait: 'D', text: "Đối đầu trực tiếp vấn đề để tìm **giải pháp nhanh**." },
+                        { trait: 'I', text: "Sử dụng sự hài hước và hòa giải để **giảm căng thẳng**." },
+                        { trait: 'S', text: "Duy trì sự **bình tĩnh**, lắng nghe để tránh xung đột." },
+                        { trait: 'C', text: "Phân tích nguyên nhân và tìm ra **dữ liệu** bị sai." }
+                    ]
+                },
+                {
+                    text: "Mục tiêu quan trọng nhất của bạn trong công việc là gì?",
+                    options: [
+                        { trait: 'D', text: "Đạt được **kết quả**, vượt qua các thách thức." },
+                        { trait: 'I', text: "Được **công nhận**, có tầm ảnh hưởng xã hội." },
+                        { trait: 'S', text: "Có sự **ổn định**, an toàn và môi trường hài hòa." },
+                        { trait: 'C', text: "Sự **chính xác**, kiến thức chuyên sâu và tiêu chuẩn cao." }
+                    ]
+                },
+                {
+                    text: "Người khác thường nhận xét về tốc độ và nhịp độ làm việc của bạn như thế nào?",
+                    options: [
+                        { trait: 'D', text: "**Nhanh**, quyết đoán và luôn hướng đến hành động." },
+                        { trait: 'I', text: "**Nhanh**, bốc đồng và thích làm nhiều việc cùng lúc." },
+                        { trait: 'S', text: "**Chậm rãi**, đều đặn và có phương pháp." },
+                        { trait: 'C', text: "**Cẩn thận**, tỉ mỉ và cần thời gian để kiểm tra." }
+                    ]
+                },
+                {
+                    text: "Điều gì khiến bạn lo lắng hoặc sợ hãi nhất?",
+                    options: [
+                        { trait: 'D', text: "Bị **lợi dụng** hoặc mất quyền kiểm soát." },
+                        { trait: 'I', text: "Bị **từ chối** hoặc bị mất đi tầm ảnh hưởng." },
+                        { trait: 'S', text: "Những **thay đổi đột ngột** và sự thiếu ổn định." },
+                        { trait: 'C', text: "Bị chỉ trích về **lỗi sai** hoặc thiếu chính xác." }
+                    ]
+                },
+                {
+                    text: "Bạn ra quyết định dựa trên điều gì?",
+                    options: [
+                        { trait: 'D', text: "**Dữ liệu**, logic và ý chí của bản thân." },
+                        { trait: 'I', text: "**Cảm xúc**, trực giác và sự đồng thuận của mọi người." },
+                        { trait: 'S', text: "**Kinh nghiệm**, cảm giác và sự an toàn." },
+                        { trait: 'C', text: "**Phân tích** chi tiết và sự kiện khách quan." }
+                    ]
+                },
+                {
+                    text: "Phong cách giao tiếp của bạn là gì?",
+                    options: [
+                        { trait: 'D', text: "**Trực tiếp**, ngắn gọn, tập trung vào mục tiêu." },
+                        { trait: 'I', text: "**Thân thiện**, cởi mở, thích kể chuyện và giao lưu." },
+                        { trait: 'S', text: "**Nhẹ nhàng**, lắng nghe, tránh đối đầu." },
+                        { trait: 'C', text: "**Cụ thể**, trang trọng, hỏi nhiều chi tiết." }
+                    ]
+                },
+                {
+                    text: "Mức độ chấp nhận rủi ro của bạn?",
+                    options: [
+                        { trait: 'D', text: "Sẵn sàng chấp nhận **rủi ro lớn** để thắng lớn." },
+                        { trait: 'I', text: "Chấp nhận rủi ro khi có **sự ủng hộ** xã hội." },
+                        { trait: 'S', text: "**Tránh rủi ro**, ưu tiên sự an toàn." },
+                        { trait: 'C', text: "Chỉ chấp nhận rủi ro đã được **tính toán kỹ**." }
+                    ]
+                },
+                {
+                    text: "Phản ứng của bạn với sự thay đổi?",
+                    options: [
+                        { trait: 'D', text: "Chủ động **tạo ra sự thay đổi** và dẫn đầu." },
+                        { trait: 'I', text: "Thích nghi nhanh, **nhiệt tình** thử cái mới." },
+                        { trait: 'S', text: "**Khó chấp nhận**, cần thời gian làm quen." },
+                        { trait: 'C', text: "**Nghiên cứu kỹ**, yêu cầu kế hoạch chi tiết." }
+                    ]
+                },
+                {
+                    text: "Vai trò ưa thích của bạn trong một nhóm?",
+                    options: [
+                        { trait: 'D', text: "Là người **đưa ra quyết định** cuối cùng." },
+                        { trait: 'I', text: "Người **động viên** và kết nối mọi người." },
+                        { trait: 'S', text: "Người **đảm bảo tính nhất quán** và ổn định." },
+                        { trait: 'C', text: "Người **kiểm tra lỗi** và đảm bảo tiêu chuẩn." }
+                    ]
+                },
+                {
+                    text: "Tôi tập trung vào điều gì nhất?",
+                    options: [
+                        { trait: 'D', text: "Các **thử thách** và giải pháp mới." },
+                        { trait: 'I', text: "Mối **quan hệ** và bầu không khí." },
+                        { trait: 'S', text: "Duy trì **hiện trạng** và chất lượng công việc." },
+                        { trait: 'C', text: "Sự **chính xác** và dữ liệu cụ thể." }
+                    ]
+                },
+                {
+                    text: "Thái độ của bạn khi mắc lỗi?",
+                    options: [
+                        { trait: 'D', text: "Sửa chữa nhanh, **rút kinh nghiệm** và tiếp tục." },
+                        { trait: 'I', text: "Dễ dàng **bỏ qua**, tập trung vào việc mới." },
+                        { trait: 'S', text: "**Lo lắng**, sợ bị người khác đánh giá." },
+                        { trait: 'C', text: "**Khó chịu**, tự trách vì thiếu sự chuẩn bị." }
+                    ]
+                },
+                {
+                    text: "Mọi người thường thấy bạn là người như thế nào?",
+                    options: [
+                        { trait: 'D', text: "Mạnh mẽ, **tự tin**." },
+                        { trait: 'I', text: "Vui vẻ, **năng động**." },
+                        { trait: 'S', text: "Thân thiện, **kiên định**." },
+                        { trait: 'C', text: "Tỉ mỉ, có **phương pháp**." }
+                    ]
+                },
+                {
+                    text: "Điều bạn cần nhất khi giao tiếp là gì?",
+                    options: [
+                        { trait: 'D', text: "Sự **hiệu quả** và thời gian ngắn." },
+                        { trait: 'I', text: "Sự **cởi mở** và tán thưởng." },
+                        { trait: 'S', text: "Sự **nhất quán** và đồng thuận." },
+                        { trait: 'C', text: "Sự **logic** và bằng chứng." }
+                    ]
+                },
+                {
+                    text: "Trong các sự kiện xã hội, tôi thường...",
+                    options: [
+                        { trait: 'D', text: "Trực tiếp tiếp cận những người **quan trọng**." },
+                        { trait: 'I', text: "Nhanh chóng trở thành **trung tâm** của sự chú ý." },
+                        { trait: 'S', text: "Tương tác chủ yếu với những người tôi **quen**." },
+                        { trait: 'C', text: "**Quan sát** và lắng nghe trước khi nói." }
+                    ]
+                },
+                {
+                    text: "Tôi quản lý thời gian bằng cách...",
+                    options: [
+                        { trait: 'D', text: "Tập trung vào việc **hoàn thành mục tiêu**." },
+                        { trait: 'I', text: "**Linh hoạt**, thích ứng với cơ hội bất ngờ." },
+                        { trait: 'S', text: "Theo một **lịch trình đều đặn**, không thay đổi." },
+                        { trait: 'C', text: "Lập **kế hoạch chi tiết** và tuân thủ chặt chẽ." }
+                    ]
+                },
+                {
+                    text: "Khi cần chỉ trích người khác, tôi...",
+                    options: [
+                        { trait: 'D', text: "Thẳng thắn và **trực tiếp** vào vấn đề." },
+                        { trait: 'I', text: "**Nhẹ nhàng**, cố gắng động viên để tránh làm tổn thương." },
+                        { trait: 'S', text: "Rất **khó để chỉ trích**, sợ làm mất lòng." },
+                        { trait: 'C', text: "Cung cấp **bằng chứng cụ thể** và chi tiết để họ sửa." }
+                    ]
+                },
+                {
+                    text: "Môi trường làm việc lý tưởng của bạn là?",
+                    options: [
+                        { trait: 'D', text: "**Cạnh tranh**, có nhiều quyền tự chủ." },
+                        { trait: 'I', text: "Mở, **vui vẻ**, có nhiều tương tác xã hội." },
+                        { trait: 'S', text: "**Yên tĩnh**, hợp tác, ít áp lực thay đổi." },
+                        { trait: 'C', text: "Có **cấu trúc**, có tiêu chuẩn rõ ràng." }
+                    ]
+                },
+                {
+                    text: "Khi bắt đầu một dự án mới, tôi...",
+                    options: [
+                        { trait: 'D', text: "Muốn **bắt đầu ngay** lập tức, không cần quá nhiều thông tin." },
+                        { trait: 'I', text: "Tạo một cuộc họp để cùng nhau **lên ý tưởng** và khuấy động không khí." },
+                        { trait: 'S', text: "Tìm hiểu xem **người khác** đã làm gì trước đây và tham khảo." },
+                        { trait: 'C', text: "Đảm bảo tôi có **tất cả các chi tiết** trước khi bắt đầu." }
+                    ]
+                },
+                {
+                    text: "Điều gì làm bạn cảm thấy được trân trọng?",
+                    options: [
+                        { trait: 'D', text: "Được công nhận về **thành tích** và quyền lực." },
+                        { trait: 'I', text: "Được **khen ngợi công khai** trước đám đông." },
+                        { trait: 'S', text: "Được **cảm ơn riêng tư** vì sự hỗ trợ của tôi." },
+                        { trait: 'C', text: "Được khen ngợi về **độ chính xác** và logic." }
+                    ]
+                },
+                {
+                    text: "Khi xây dựng mối quan hệ, tôi...",
+                    options: [
+                        { trait: 'D', text: "Tập trung vào những **lợi ích** chung có thể đạt được." },
+                        { trait: 'I', text: "Dành thời gian **giao lưu** và tạo kết nối cá nhân." },
+                        { trait: 'S', text: "Xây dựng lòng tin bằng sự **trung thành** và hỗ trợ." },
+                        { trait: 'C', text: "Dựa trên sự tôn trọng về **năng lực** và tiêu chuẩn." }
+                    ]
+                },
+                {
+                    text: "Trong các cuộc họp, tôi thích...",
+                    options: [
+                        { trait: 'D', text: "Đưa ra **ý kiến cuối cùng** và tóm tắt hành động." },
+                        { trait: 'I', text: "Tham gia **tích cực**, khuấy động không khí." },
+                        { trait: 'S', text: "Đảm bảo **mọi người đều được lắng nghe** và không ai bị bỏ sót." },
+                        { trait: 'C', text: "Đặt **câu hỏi chi tiết** và yêu cầu bằng chứng." }
+                    ]
+                },
+                {
+                    text: "Tôi coi trọng không gian cá nhân để...",
+                    options: [
+                        { trait: 'D', text: "Đảm bảo tôi có thể **làm việc không bị gián đoạn**." },
+                        { trait: 'I', text: "Chuẩn bị cho các **tương tác xã hội** và giao lưu tiếp theo." },
+                        { trait: 'S', text: "Duy trì **sự cân bằng** và tránh áp lực." },
+                        { trait: 'C', text: "**Tập trung** vào các vấn đề phức tạp và cần sự chính xác." }
+                    ]
+                },
+                {
+                    text: "Khi đàm phán, chiến lược của tôi là...",
+                    options: [
+                        { trait: 'D', text: "Cố gắng **thắng** và đạt được mục tiêu cá nhân." },
+                        { trait: 'I', text: "Dùng sự hấp dẫn và **sức thuyết phục** để có kết quả tốt nhất." },
+                        { trait: 'S', text: "Tìm kiếm một **thỏa hiệp** mà mọi người đều chấp nhận." },
+                        { trait: 'C', text: "Đảm bảo các điều khoản đều **hợp lý** và chính xác theo dữ liệu." }
+                    ]
+                },
+                {
+                    text: "Mức độ kiên nhẫn của bạn?",
+                    options: [
+                        { trait: 'D', text: "**Thấp**, tôi muốn kết quả ngay lập tức." },
+                        { trait: 'I', text: "**Trung bình**, miễn là có sự tương tác và hào hứng." },
+                        { trait: 'S', text: "**Rất cao**, tôi có thể chờ đợi mọi việc tiến triển." },
+                        { trait: 'C', text: "**Cao**, miễn là mọi thứ đang tiến triển theo logic." }
+                    ]
+                },
+                {
+                    text: "Khi giải quyết vấn đề, tôi...",
+                    options: [
+                        { trait: 'D', text: "Tìm kiếm **giải pháp tối ưu**, ngay cả khi nó không chính thống." },
+                        { trait: 'I', text: "Tin tưởng vào khả năng **sáng tạo** của nhóm." },
+                        { trait: 'S', text: "Sử dụng các **phương pháp đã được kiểm chứng**." },
+                        { trait: 'C', text: "Thực hiện một **nghiên cứu kỹ lưỡng** trước khi hành động." }
+                    ]
+                },
+                {
+                    text: "Tôi nhìn nhận chi tiết như thế nào?",
+                    options: [
+                        { trait: 'D', text: "Cần thiết nhưng **không phải là ưu tiên hàng đầu**." },
+                        { trait: 'I', text: "Dễ làm tôi **chán và mất tập trung**." },
+                        { trait: 'S', text: "**Cần thiết** để đảm bảo sự ổn định." },
+                        { trait: 'C', text: "**Rất quan trọng**, tôi thích sự tỉ mỉ." }
+                    ]
+                },
+                {
+                    text: "Trong một dự án, bạn muốn kiểm soát điều gì?",
+                    options: [
+                        { trait: 'D', text: "Kiểm soát **mục tiêu** và phương hướng chung." },
+                        { trait: 'I', text: "Kiểm soát **tinh thần** và sự kết nối của đội." },
+                        { trait: 'S', text: "Kiểm soát **nhịp độ** và sự ổn định của công việc." },
+                        { trait: 'C', text: "Kiểm soát **chất lượng** và tính chính xác." }
+                    ]
+                },
+                {
+                    text: "Tôi thể hiện cảm xúc như thế nào?",
+                    options: [
+                        { trait: 'D', text: "**Kiểm soát tốt**, chỉ thể hiện khi cần thiết để đạt mục tiêu." },
+                        { trait: 'I', text: "**Cởi mở** và bộc lộ một cách rõ ràng cho mọi người thấy." },
+                        { trait: 'S', text: "**Giữ kín**, chỉ chia sẻ với người thân cận." },
+                        { trait: 'C', text: "Giữ trong lòng, thích sự **khách quan** và logic." }
+                    ]
+                },
+                {
+                    text: "Bạn muốn người khác nhớ đến mình là người như thế nào?",
+                    options: [
+                        { trait: 'D', text: "Một **người chiến thắng** có năng lực." },
+                        { trait: 'I', text: "Một **người bạn vui vẻ** và truyền cảm hứng." },
+                        { trait: 'S', text: "Một **người đáng tin cậy** và trung thành." },
+                        { trait: 'C', text: "Một **người chính xác** và thông minh." }
+                    ]
+                }
+            ];
+            
+            const totalQuestions = fullQuestionsList.length;
+            let currentQuestionIndex = 0;
+            let scores = { D: 0, I: 0, S: 0, C: 0 };
+            let userSelections = new Array(totalQuestions).fill(null); 
+
+            const resultDescriptions = {
+                'D': {
+                    name: 'THỐNG TRỊ (DOMINANCE)',
+                    color: 'var(--tw-disc-d)',
+                    icon: '⚡',
+                    description: "Bạn là người **quyết đoán, thích thử thách và hướng đến kết quả**. Bạn không ngần ngại đối mặt với vấn đề và muốn mọi việc được thực hiện một cách nhanh chóng. Người khác có thể thấy bạn mạnh mẽ và tự tin, nhưng đôi khi có vẻ thiếu kiên nhẫn và thẳng thắn quá mức. Điểm mạnh của bạn là khả năng ra quyết định và sự chủ động."
+                },
+                'I': {
+                    name: 'ẢNH HƯỞNG (INFLUENCE)',
+                    color: 'var(--tw-disc-i)',
+                    icon: '🌈',
+                    description: "Bạn là người **hòa đồng, lạc quan và có sức thuyết phục**. Bạn yêu thích các hoạt động xã hội, thích truyền cảm hứng và tạo dựng mối quan hệ. Bạn là người giao tiếp tuyệt vời, nhưng đôi khi có thể bị coi là bốc đồng hoặc thiếu tập trung vào chi tiết. Điểm mạnh của bạn là khả năng xây dựng mạng lưới và tạo động lực."
+                },
+                'S': {
+                    name: 'KIÊN ĐỊNH (STEADINESS)',
+                    color: 'var(--tw-disc-s)',
+                    icon: '🌱',
+                    description: "Bạn là người **kiên nhẫn, đáng tin cậy và có tính hỗ trợ cao**. Bạn coi trọng sự ổn định, làm việc nhóm và tạo ra một môi trường hòa hợp. Bạn là một người lắng nghe tuyệt vời, nhưng có thể gặp khó khăn với sự thay đổi nhanh chóng và cần thời gian để điều chỉnh. Điểm mạnh của bạn là sự trung thành, hỗ trợ và tính nhất quán."
+                },
+                'C': {
+                    name: 'TUÂN THỦ (CONSCIENTIOUSNESS)',
+                    color: 'var(--tw-disc-c)',
+                    icon: '🔬',
+                    description: "Bạn là người **chính xác, logic và có óc phân tích**. Bạn đặt ra các tiêu chuẩn cao cho bản thân và người khác, luôn muốn có đủ thông tin và tuân thủ quy trình chất lượng. Bạn làm việc tỉ mỉ, nhưng có thể mất quá nhiều thời gian để ra quyết định vì muốn có sự hoàn hảo. Điểm mạnh của bạn là chất lượng, độ chính xác và khả năng phân tích."
+                }
+            };
+
+            const quizArea = document.getElementById('disc-quiz-area');
+            const resultArea = document.getElementById('disc-result-area');
+            const overallProgressBar = document.getElementById('disc-overall-progress-bar'); 
+
+            function updateOverallProgress() {
+                if (overallProgressBar) {
+                    const completedQuestions = userSelections.filter(s => s !== null).length;
+                    const progressPercent = (completedQuestions / totalQuestions) * 100;
+                    overallProgressBar.style.width = `${progressPercent}%`;
+                }
+            }
+
+            function renderQuestion() {
+                updateOverallProgress();
+
+                if (currentQuestionIndex >= totalQuestions) {
+                    showResults();
+                    return;
+                }
+
+                const questionData = fullQuestionsList[currentQuestionIndex];
+                const currentSelection = userSelections[currentQuestionIndex];
+
+                let optionsHtml = questionData.options.map(option => {
+                    const isSelected = currentSelection === option.trait;
+                    const traitClass = option.trait.toLowerCase();
+                    const borderClass = `border-disc-${traitClass}`;
+                    const ringClass = `ring-disc-${traitClass}`;
+                    
+                    let selectedClass = '';
+
+                    if (isSelected) {
+                        selectedClass = `ring-4 ring-opacity-50 ${ringClass} border-4`;
+                    }
+
+                    return `
+                        <div class="option-card p-4 bg-white rounded-xl border-2 border-gray-200 shadow-md ${selectedClass} hover:${borderClass} hover:border-4 cursor-pointer transition-all duration-200"
+                            onclick="DISCEngine.selectOption('${option.trait}')">
+                            <div class="flex items-center space-x-4">
+                                ${getTraitIcon(option.trait)}
+                                <p class="text-gray-700 font-medium text-left">${option.text}</p>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                quizArea.innerHTML = `
+                    <div class="bg-white p-6 md:p-8 border-l-4 border-disc-d rounded-lg shadow-xl mb-8">
+                        <h3 class="text-xl md:text-2xl font-semibold text-gray-800">${questionData.text} <span class="text-sm font-normal text-gray-500 block mt-2">(Câu ${currentQuestionIndex + 1} / ${totalQuestions})</span></h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                        ${optionsHtml}
+                    </div>
+                    <div class="flex justify-between mt-8">
+                        <button onclick="DISCEngine.prevQuestion()" ${currentQuestionIndex === 0 ? 'disabled' : ''}
+                                class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-lg transition duration-300 ${currentQuestionIndex === 0 ? 'opacity-50 cursor-not-allowed' : 'shadow-md'}">
+                            ← Quay lại
+                        </button>
+                        <button onclick="DISCEngine.nextQuestion()" ${currentSelection === null ? 'disabled' : ''}
+                                class="bg-disc-d hover:bg-red-600 text-white font-bold py-2 px-6 rounded-lg transition duration-300 ${currentSelection === null ? 'opacity-50 cursor-not-allowed' : 'shadow-lg transform hover:scale-105'}">
+                            ${currentQuestionIndex === totalQuestions - 1 ? 'Xem Kết Quả' : 'Tiếp Theo →'}
+                        </button>
+                    </div>
+                `;
+            }
+
+            function selectOption(trait) {
+                const previousSelection = userSelections[currentQuestionIndex];
+                
+                if (previousSelection === null) {
+                    scores[trait]++;
+                } else if (previousSelection !== trait) {
+                    scores[previousSelection]--;
+                    scores[trait]++;
+                }
+                userSelections[currentQuestionIndex] = trait;
+                renderQuestion();
+            }
+
+            function nextQuestion() {
+                if (userSelections[currentQuestionIndex] === null) return; 
+                currentQuestionIndex++;
+                renderQuestion();
+            }
+
+            function prevQuestion() {
+                if (currentQuestionIndex > 0) {
+                    currentQuestionIndex--;
+                    renderQuestion();
+                }
+            }
+
+            function showResults() {
+                if (overallProgressBar) {
+                    overallProgressBar.style.width = '100%';
+                }
+
+                quizArea.classList.add('hidden');
+                resultArea.classList.remove('hidden');
+
+                let maxScore = -1;
+                let mainTrait = '';
+                
+                for (const trait in scores) {
+                    if (scores[trait] > maxScore) {
+                        maxScore = scores[trait];
+                        mainTrait = trait;
+                    }
+                }
+                
+                const profile = resultDescriptions[mainTrait];
+                const maxPossibleScore = totalQuestions;
+
+                const mainStyleDisplay = document.getElementById('disc-main-style-display');
+                mainStyleDisplay.innerHTML = `
+                    <span class="text-6xl mb-2 block">${profile.icon}</span>
+                    <h3 class="text-4xl font-extrabold" style="color: ${profile.color};">
+                        ${profile.name} (${mainTrait})
+                    </h3>
+                    <p class="text-lg text-gray-700 mt-1">Phong cách chính của bạn</p>
+                `;
+                
+                document.getElementById('disc-result-description').innerText = profile.description;
+                document.getElementById('disc-result-profile').style.borderTopColor = profile.color;
+
+
+                for (const trait in scores) {
+                    const traitLower = trait.toLowerCase();
+                    const scoreElement = document.getElementById(`disc-score-${traitLower}`);
+                    const countElement = document.getElementById(`disc-score-count-${traitLower}`);
+                    const percentage = (scores[trait] / maxPossibleScore) * 100;
+                    
+                    if (scoreElement) { 
+                        scoreElement.style.width = `${percentage}%`;
+                    }
+                    
+                    if (countElement) {
+                        countElement.innerText = `${scores[trait]} / ${maxPossibleScore}`; 
+                    }
+                }
+            }
+
+            function restartQuiz() {
+                currentQuestionIndex = 0;
+                scores = { D: 0, I: 0, S: 0, C: 0 };
+                userSelections = new Array(totalQuestions).fill(null);
+                
+                quizArea.classList.remove('hidden');
+                resultArea.classList.add('hidden');
+                
+                if (overallProgressBar) {
+                    overallProgressBar.style.width = '0%';
+                }
+
+                ['d', 'i', 's', 'c'].forEach(trait => {
+                    const scoreElement = document.getElementById(`disc-score-${trait}`);
+                    const countElement = document.getElementById(`disc-score-count-${trait}`);
+                    if (scoreElement) {
+                        scoreElement.style.width = '0%';
+                    }
+                    if (countElement) {
+                        countElement.innerText = `0 / ${totalQuestions}`;
+                    }
+                });
+
+                renderQuestion();
+            }
+
+            return {
+                initialize: renderQuestion,
+                selectOption,
+                nextQuestion,
+                prevQuestion,
+                restartQuiz
+            };
+        })();
+
+        // --- 2. Holland Quiz Engine (RIASEC) ---
+
+        const HollandEngine = (function() {
+            const quizData = [
+                { question: "Bạn thích làm việc với máy móc, công cụ và sửa chữa đồ đạc?", type: "R" },
+                { question: "Bạn thích các hoạt động ngoài trời, thực hành, tạo ra sản phẩm cụ thể?", type: "R" },
+                { question: "Bạn có óc suy nghĩ thực tế, thích công việc đòi hỏi sức khỏe, tay chân?", type: "R" },
+                { question: "Bạn thích tìm hiểu, khám phá những vấn đề mới, phức tạp?", type: "I" },
+                { question: "Bạn thích quan sát, nghiên cứu, đọc sách và làm thí nghiệm?", type: "I" },
+                { question: "Bạn có tư duy logic, khả năng phân tích vấn đề và tìm ra nguyên nhân, giải pháp?", type: "I" },
+                { question: "Bạn thích thể hiện bản thân qua nghệ thuật, âm nhạc, văn chương?", type: "A" },
+                { question: "Bạn thích làm việc trong môi trường không có nhiều quy tắc, thoải mái, sáng tạo?", type: "A" },
+                { question: "Bạn có khiếu thẩm mỹ, thích cái đẹp và có khả năng thiết kế, trang trí?", type: "A" },
+                { question: "Bạn thích giúp đỡ, chăm sóc hoặc giảng dạy người khác?", type: "S" },
+                { question: "Bạn có khả năng lắng nghe và thấu hiểu cảm xúc của người xung quanh?", type: "S" },
+                { question: "Bạn thích làm việc nhóm, tham gia các hoạt động cộng đồng, xã hội?", type: "S" },
+                { question: "Bạn có tinh thần lãnh đạo, thích khởi xướng và điều hành công việc?", type: "E" },
+                { question: "Bạn thích cạnh tranh, dám chấp nhận rủi ro và tìm kiếm cơ hội kinh doanh?", type: "E" },
+                { question: "Bạn có khả năng thuyết trình, đàm phán và gây ảnh hưởng đến người khác?", type: "E" },
+                { question: "Bạn thích làm việc với số liệu, hồ sơ, giấy tờ một cách có hệ thống?", type: "C" },
+                { question: "Bạn là người cẩn thận, tỉ mỉ, thích tuân theo các quy tắc và quy trình có sẵn?", type: "C" },
+                { question: "Bạn có khả năng tổ chức, sắp xếp công việc gọn gàng, chính xác?", type: "C" },
+                { question: "Bạn thích lắp ráp mô hình, thiết bị điện tử?", type: "R" },
+                { question: "Bạn thích phân loại, sắp xếp các bộ sưu tập?", type: "I" },
+                { question: "Bạn thích vẽ vời, chụp ảnh hoặc quay phim?", type: "A" },
+                { question: "Bạn thích tổ chức các buổi gặp gỡ, sự kiện?", type: "S" },
+                { question: "Bạn thích đưa ra ý tưởng mới và thuyết phục người khác theo mình?", type: "E" },
+                { question: "Bạn thích nhập liệu, kiểm tra lỗi và ghi chép chi tiết?", type: "C" },
+                { question: "Bạn thích làm việc độc lập với các công việc cụ thể?", type: "R" },
+                { question: "Bạn thích đọc các bài báo khoa học, phân tích chuyên sâu?", type: "I" },
+                { question: "Bạn thích viết nhật ký, thơ ca hoặc sáng tác nhạc?", type: "A" },
+                { question: "Bạn thích làm tình nguyện viên, hỗ trợ người già/trẻ em?", type: "S" },
+                { question: "Bạn thích quản lý một ngân sách hoặc một dự án nhỏ?", type: "E" },
+                { question: "Bạn thích các công việc ổn định, có tiền lương rõ ràng, không mạo hiểm?", type: "C" }
+            ];
+
+            const totalQuestions = quizData.length;
+            let currentQuestionIndex = 0;
+            let scores = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
+            let userSelections = new Array(totalQuestions).fill(null);
+
+            const HollandTypes = {
+                R: "Thực tế (Realistic)", I: "Nghiên cứu (Investigative)", A: "Nghệ thuật (Artistic)",
+                S: "Xã hội (Social)", E: "Kinh doanh (Enterprising)", C: "Nghiệp vụ (Conventional)"
+            };
+
+            const HollandCareers = {
+                R: ["Kỹ sư Cơ khí", "Kỹ thuật Xây dựng", "Phi công", "Nông nghiệp Công nghệ cao", "Thợ thủ công"],
+                I: ["Nhà Khoa học", "Phân tích Dữ liệu", "Lập trình viên", "Bác sĩ (Nghiên cứu)", "Chuyên gia Môi trường"],
+                A: ["Thiết kế Đồ họa", "Kiến trúc sư", "Nhà Văn/Nhà Thơ", "Nghệ sĩ Biểu diễn", "Nhiếp ảnh gia"],
+                S: ["Giáo viên", "Tư vấn Tâm lý", "Công tác Xã hội", "Quản lý Nhân sự", "Y tá/Điều dưỡng"],
+                E: ["Quản lý Dự án", "Doanh nhân", "Chuyên viên Marketing", "Luật sư", "Giám đốc Kinh doanh"],
+                C: ["Kế toán", "Kiểm toán", "Thư ký", "Thủ thư", "Chuyên viên Thuế/Ngân hàng"]
+            };
+
+            function getScoreValue(selection) {
+                return parseInt(selection, 10);
+            }
+
+            function updateOverallProgress() {
+                const overallProgressBar = document.getElementById('holland-overall-progress-bar');
+                if (overallProgressBar) {
+                    const completedQuestions = userSelections.filter(s => s !== null).length;
+                    const progressPercent = (completedQuestions / totalQuestions) * 100;
+                    overallProgressBar.style.width = `${progressPercent}%`;
+                }
+            }
+
+            function renderQuestion() {
+                updateOverallProgress();
+
+                if (currentQuestionIndex >= totalQuestions) {
+                    showResults();
+                    return;
+                }
+
+                const questionData = quizData[currentQuestionIndex];
+                const currentSelection = userSelections[currentQuestionIndex];
+                const type = questionData.type;
+                const typeColorVar = `var(--tw-holland-${type.toLowerCase()})`;
+
+                let optionsHtml = `
+                    <div class="flex flex-col sm:flex-row justify-between space-y-2 sm:space-y-0 sm:space-x-4">
+                        ${[1, 2, 3, 4, 5].map(value => {
+                            const isSelected = currentSelection === value;
+                            const label = ['Rất không thích', 'Không thích', 'Bình thường', 'Thích', 'Rất thích'][value - 1];
+                            const selectedClass = isSelected ? `ring-4 ring-opacity-50 ring-indigo-500 border-indigo-500 border-4` : '';
+                            return `
+                                <label class="flex items-center cursor-pointer p-3 bg-white rounded-xl border-2 border-gray-200 shadow-md transition-all duration-200 flex-grow hover:border-indigo-500 ${selectedClass}"
+                                    onclick="HollandEngine.selectOption('${type}', ${value})">
+                                    <input type="radio" name="holland-q${currentQuestionIndex}-choice" value="${value}" class="form-radio h-4 w-4 mr-2" style="color: ${typeColorVar};" ${isSelected ? 'checked' : ''}>
+                                    <span class="text-sm font-medium text-gray-700">${label}</span>
+                                </label>`;
+                        }).join('')}
+                    </div>
+                `;
+
+                document.getElementById('holland-quiz-area').innerHTML = `
+                    <div class="bg-white p-6 md:p-8 border-l-4 rounded-lg shadow-xl mb-8" style="border-left-color: ${typeColorVar};">
+                        <h3 class="text-xl md:text-2xl font-semibold text-gray-800">${questionData.question} <span class="text-sm font-normal text-gray-500 block mt-2">(Câu ${currentQuestionIndex + 1} / ${totalQuestions})</span></h3>
+                        <p class="text-sm font-medium mt-2" style="color: ${typeColorVar};">${HollandTypes[type]}</p>
+                    </div>
+
+                    <div class="mb-8">
+                        ${optionsHtml}
+                    </div>
+
+                    <div class="flex justify-between mt-8">
+                        <button onclick="HollandEngine.prevQuestion()" ${currentQuestionIndex === 0 ? 'disabled' : ''}
+                                class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-lg transition duration-300 ${currentQuestionIndex === 0 ? 'opacity-50 cursor-not-allowed' : 'shadow-md'}">
+                            ← Quay lại
+                        </button>
+                        <button onclick="HollandEngine.nextQuestion()" ${currentSelection === null ? 'disabled' : ''}
+                                class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg transition duration-300 ${currentSelection === null ? 'opacity-50 cursor-not-allowed' : 'shadow-lg transform hover:scale-105'}">
+                            ${currentQuestionIndex === totalQuestions - 1 ? 'Xem Kết Quả' : 'Tiếp Theo →'}
+                        </button>
+                    </div>
+                `;
+            }
+
+            function selectOption(type, value) {
+                const previousSelection = userSelections[currentQuestionIndex];
+                
+                if (previousSelection !== null) {
+                    scores[type] -= previousSelection;
+                }
+                scores[type] += value;
+                userSelections[currentQuestionIndex] = value;
+                renderQuestion();
+            }
+
+            function nextQuestion() {
+                if (userSelections[currentQuestionIndex] === null) return; 
+                currentQuestionIndex++;
+                renderQuestion();
+            }
+
+            function prevQuestion() {
+                if (currentQuestionIndex > 0) {
+                    currentQuestionIndex--;
+                    renderQuestion();
+                }
+            }
+
+            function showResults() {
+                document.getElementById('holland-overall-progress-bar').style.width = '100%';
+                document.getElementById('holland-quiz-area').classList.add('hidden');
+                document.getElementById('holland-result-area').classList.remove('hidden');
+
+                const sortedResults = Object.entries(scores).sort(([, a], [, b]) => b - a);
+                const riasecCode = sortedResults.slice(0, 3).map(([type]) => type).join('');
+                const topType = sortedResults[0][0];
+                const topCareers = HollandCareers[topType] || [];
+                const topColor = `var(--tw-holland-${topType.toLowerCase()})`;
+
+                const mainStyleDisplay = document.getElementById('holland-main-style-display');
+                mainStyleDisplay.innerHTML = `
+                    <p class="text-xl font-medium text-gray-800">Mã Holland của bạn là:</p>
+                    <h3 class="text-6xl font-extrabold mt-2 mb-4" style="color: ${topColor};">${riasecCode}</h3>
+                    <p class="text-lg text-gray-700 mt-1">Loại hình chính: <strong>${HollandTypes[topType]}</strong></p>
+                `;
+                
+                let scoreChartHtml = '';
+                sortedResults.forEach(([type, score]) => {
+                    const typeLower = type.toLowerCase();
+                    const percentage = (score / (totalQuestions * 5)) * 100; // Max score is 30*5 = 150
+                    const color = `var(--tw-holland-${typeLower})`;
+                    scoreChartHtml += `
+                        <div class="p-3 rounded-lg shadow-md" style="background-color: ${color}1A;">
+                            <div class="flex justify-between items-baseline">
+                                <p class="text-sm font-semibold text-gray-700">${HollandTypes[type]}</p>
+                                <span class="text-base font-bold" style="color: ${color};">${score} điểm</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                                <div class="h-2.5 rounded-full progress-bar-transition" style="background-color: ${color}; width: ${percentage}%;"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+                document.getElementById('holland-score-chart').innerHTML = scoreChartHtml;
+
+                document.getElementById('holland-result-description').innerHTML = `
+                    <p class="mb-4">Mã ${riasecCode} thể hiện sự kết hợp giữa các sở thích công việc của bạn. Loại hình chính <strong>${HollandTypes[topType]}</strong> gợi ý bạn nên tìm kiếm môi trường làm việc:</p>
+                    <ul class="list-disc pl-5 space-y-1 text-gray-800 font-semibold mb-4">
+                        ${topCareers.map(c => `<li>${c}</li>`).join('')}
+                    </ul>
+                    <p class="text-sm italic">Hãy tra cứu chi tiết hơn về các ngành này bằng AI Hướng Nghiệp sau khi hoàn tất bài trắc nghiệm!</p>
+                `;
+                document.getElementById('holland-result-profile').style.borderTopColor = topColor;
+            }
+
+            function restartQuiz() {
+                currentQuestionIndex = 0;
+                scores = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
+                userSelections = new Array(totalQuestions).fill(null);
+                
+                document.getElementById('holland-quiz-area').classList.remove('hidden');
+                document.getElementById('holland-result-area').classList.add('hidden');
+                document.getElementById('holland-overall-progress-bar').style.width = '0%';
+                renderQuestion();
+            }
+
+            return {
+                initialize: renderQuestion,
+                selectOption,
+                nextQuestion,
+                prevQuestion,
+                restartQuiz
+            };
+        })();
+
+        // --- 3. MBTI Quiz Engine (Updated with 40 Questions) ---
+
+        const MBTIEngine = (function() {
+             // START: TÍCH HỢP 40 CÂU HỎI MBTI TỪ FILE CỦA BẠN
+            const quizData = [
+                { dimension: 'T_F', question: "Khi đánh giá thành công của một dự án, tôi chú trọng:", options: [{ trait: 'T', text: "Các chỉ số định lượng như ROI, thời gian hoàn thành." }, { trait: 'F', text: "Sự hài lòng của khách hàng và mức độ cải thiện trải nghiệm người dùng." }] },
+                { dimension: 'S_N', question: "Khi học về công cụ mới để sử dụng trong công việc, tôi thích:", options: [{ trait: 'S', text: "Hiểu chính xác cách sử dụng từng tính năng." }, { trait: 'N', text: "Khám phá các cách sáng tạo để áp dụng công cụ đó." }] },
+                // Câu 3 trùng lặp, bỏ qua và lấy câu 4
+                { dimension: 'J_P', question: "Không gian làm việc của tôi thường:", options: [{ trait: 'J', text: "Được tổ chức gọn gàng với hệ thống sắp xếp rõ ràng." }, { trait: 'P', text: "Có đặc điểm sáng tạo với nhiều tài liệu và ý tưởng xung quanh." }] },
+                { dimension: 'F_T', question: "Trong các cuộc họp giải quyết xung đột trong nhóm, tôi thường:", options: [{ trait: 'F', text: "Quan tâm đến cảm xúc của mọi người và tìm cách duy trì hòa khí." }, { trait: 'T', text: "Tập trung vào vấn đề và tìm giải pháp hợp lý nhất." }] },
+                { dimension: 'J_P', question: "Khi đối mặt với một quyết định, tôi thường:", options: [{ trait: 'J', text: "Thích đưa ra quyết định nhanh chóng và tiến về phía trước." }, { trait: 'P', text: "Giữ các lựa chọn mở càng lâu càng tốt để thu thập thêm thông tin." }] },
+                { dimension: 'S_N', question: "Khi đọc tài liệu kỹ thuật về sản phẩm mới, tôi thường:", options: [{ trait: 'S', text: "Chú ý đến các chi tiết cụ thể và thông số kỹ thuật." }, { trait: 'N', text: "Tìm kiếm ý tưởng và khả năng ứng dụng sáng tạo." }] },
+                { dimension: 'I_E', question: "Khi cần giải quyết vấn đề trong công việc, tôi thường:", options: [{ trait: 'I', text: "Dành thời gian suy nghĩ một mình trước khi chia sẻ ý kiến." }, { trait: 'E', text: "Thảo luận với đồng nghiệp để tìm giải pháp." }] },
+                { dimension: 'S_N', question: "Trong các cuộc thảo luận về xu hướng mới, tôi thường:", options: [{ trait: 'S', text: "Tập trung vào các xu hướng hiện tại có dữ liệu hỗ trợ." }, { trait: 'N', text: "Dự đoán các xu hướng tương lai và thảo luận về khả năng." }] },
+                { dimension: 'E_I', question: "Khi công ty tổ chức sự kiện, tôi thường:", options: [{ trait: 'E', text: "Tích cực giao lưu và kết nối với nhiều người." }, { trait: 'I', text: "Tập trung vào một vài cuộc trò chuyện sâu với đối tác hoặc khách hàng." }] },
+                { dimension: 'S_P', question: "Khi gặp vấn đề phát sinh trong dự án, tôi:", options: [{ trait: 'S', text: "Tuân theo quy trình xử lý vấn đề đã thiết lập." }, { trait: 'P', text: "Thích ứng nhanh và tìm các giải pháp sáng tạo." }] },
+                { dimension: 'F_J', question: "Khi triển khai các giải pháp cho khách hàng, tôi ưu tiên:", options: [{ trait: 'F', text: "Điều chỉnh phương pháp triển khai theo nhu cầu cụ thể của từng khách hàng." }, { trait: 'J', text: "Tuân thủ quy trình triển khai chuẩn và đảm bảo tính nhất quán." }] },
+                { dimension: 'T_F', question: "Khi cần phản hồi về công việc của đồng nghiệp, tôi thường:", options: [{ trait: 'T', text: "Đưa ra phản hồi trực tiếp, rõ ràng về những điểm cần cải thiện." }, { trait: 'F', text: "Đưa ra phản hồi một cách tế nhị, nhấn mạnh điểm tích cực trước." }] },
+                { dimension: 'E_I', question: "Sau một ngày làm việc căng thẳng tại công ty, tôi thích:", options: [{ trait: 'E', text: "Tham gia gặp gỡ đồng nghiệp hoặc tham gia các hoạt động nhóm." }, { trait: 'I', text: "Dành thời gian một mình để thư giãn và nạp lại năng lượng." }] },
+                { dimension: 'E_I', question: "Trong quá trình đào tạo hoặc hướng dẫn, tôi cảm thấy thoải mái hơn khi:", options: [{ trait: 'E', text: "Hướng dẫn trực tiếp và tương tác với nhiều người." }, { trait: 'I', text: "Chuẩn bị tài liệu chi tiết và hướng dẫn theo nhóm nhỏ." }] },
+                { dimension: 'I_E', question: "Khi nhận được thông tin mới về sản phẩm hoặc dịch vụ, tôi thường:", options: [{ trait: 'I', text: "Xem xét kỹ thông tin trước khi chia sẻ với người khác." }, { trait: 'E', text: "Chia sẻ và thảo luận ngay với đồng nghiệp." }] },
+                { dimension: 'N_S', question: "Khi xây dựng chiến lược cho doanh nghiệp, tôi ưu tiên:", options: [{ trait: 'N', text: "Các phương pháp tiếp cận mới và đổi mới sáng tạo." }, { trait: 'S', text: "Các giải pháp đã được chứng minh và có kết quả cụ thể." }] },
+                { dimension: 'I_E', question: "Trong môi trường làm việc, tôi cảm thấy hiệu quả nhất khi:", options: [{ trait: 'I', text: "Làm việc trong không gian yên tĩnh với ít sự gián đoạn." }, { trait: 'E', text: "Làm việc trong không gian mở với nhiều tương tác." }] },
+                { dimension: 'F_T', question: "Khi phải cắt giảm ngân sách dự án, tôi sẽ:", options: [{ trait: 'F', text: "Cân nhắc tác động đến tinh thần và động lực của nhóm." }, { trait: 'T', text: "Đưa ra quyết định dựa trên phân tích chi phí-lợi ích." }] },
+                { dimension: 'S_N', question: "Khi đánh giá một giải pháp mới, tôi thường tập trung vào:", options: [{ trait: 'S', text: "Các tính năng cụ thể và dữ liệu hiệu suất." }, { trait: 'N', text: "Tiềm năng phát triển và tầm nhìn tổng thể của giải pháp." }] },
+                { dimension: 'S_F', question: "Trong quá trình xây dựng chiến lược marketing, tôi thường:", options: [{ trait: 'S', text: "Tập trung vào dữ liệu thị trường và hiệu quả của chiến dịch." }, { trait: 'F', text: "Cân nhắc cảm xúc và trải nghiệm của khách hàng." }] },
+                { dimension: 'F_T', question: "Khi đánh giá hiệu suất của một thành viên trong nhóm, tôi thường:", options: [{ trait: 'F', text: "Cân nhắc cả nỗ lực, động lực và hoàn cảnh cá nhân." }, { trait: 'T', text: "Xem xét chủ yếu dựa trên kết quả công việc và số liệu." }] },
+                { dimension: 'I_E', question: "Khi tiếp cận một dự án mới, tôi thích:", options: [{ trait: 'I', text: "Nghiên cứu và phân tích vấn đề một mình trước." }, { trait: 'E', text: "Thảo luận ý tưởng với nhóm ngay từ đầu." }] },
+                { dimension: 'J_P', question: "Trong quá trình phát triển sản phẩm hoặc dịch vụ mới, tôi thích:", options: [{ trait: 'J', text: "Tuân theo lộ trình phát triển đã được lập kế hoạch." }, { trait: 'P', text: "Điều chỉnh liên tục dựa trên phản hồi và ý tưởng mới." }] },
+                { dimension: 'P_J', question: "Khi làm việc trong nhóm, tôi thường:", options: [{ trait: 'P', text: "Ưu tiên sự linh hoạt và cho phép mọi người tự tổ chức công việc." }, { trait: 'J', text: "Thích phân công nhiệm vụ rõ ràng và theo dõi tiến độ." }] },
+                { dimension: 'P_J', question: "Khi bắt đầu một dự án mới, tôi thích:", options: [{ trait: 'P', text: "Bắt đầu nhanh chóng và điều chỉnh kế hoạch theo tình hình thực tế." }, { trait: 'J', text: "Lập kế hoạch chi tiết và thiết lập quy trình làm việc rõ ràng." }] },
+                { dimension: 'J_P', question: "Đối với deadline của dự án, tôi thường:", options: [{ trait: 'J', text: "Hoàn thành công việc trước thời hạn và đảm bảo mọi thứ đúng lịch trình." }, { trait: 'P', text: "Làm việc tốt nhất dưới áp lực và thường hoàn thành vào phút cuối." }] },
+                { dimension: 'N_S', question: "Khi phải giải quyết sự cố, tôi thường:", options: [{ trait: 'N', text: "Thử nghiệm các cách tiếp cận mới để tìm giải pháp tốt hơn." }, { trait: 'S', text: "Tuân theo quy trình xử lý sự cố đã thiết lập." }] },
+                { dimension: 'N_S', question: "Khi làm việc với dữ liệu, tôi thường:", options: [{ trait: 'N', text: "Tìm kiếm các mối liên hệ ẩn và khả năng tiềm năng." }, { trait: 'S', text: "Tập trung vào các thông tin hiện có và xu hướng rõ ràng." }] },
+                { dimension: 'I_E', question: "Khi cần đưa ra quyết định về chiến lược cho công ty, tôi thường:", options: [{ trait: 'I', text: "Phân tích dữ liệu và đánh giá các lựa chọn một cách độc lập." }, { trait: 'E', text: "Tổ chức cuộc họp để lấy ý kiến từ nhiều người." }] },
+                { dimension: 'S_N', question: "Khi đề xuất giải pháp cho khách hàng, tôi thiên về:", options: [{ trait: 'S', text: "Các giải pháp thực tế đã được thử nghiệm và có kết quả rõ ràng." }, { trait: 'N', text: "Các giải pháp sáng tạo có thể mang lại đột phá." }] },
+                { dimension: 'P_J', question: "Đối với lịch làm việc, tôi thích:", options: [{ trait: 'P', text: "Một lịch trình linh hoạt cho phép thay đổi khi cần thiết." }, { trait: 'J', text: "Một lịch trình có cấu trúc với các cuộc họp được lên kế hoạch trước." }] },
+                { dimension: 'F_T', question: "Khi phải từ chối yêu cầu của khách hàng, tôi thường:", options: [{ trait: 'F', text: "Bày tỏ sự thấu hiểu và tìm giải pháp thay thế phù hợp." }, { trait: 'T', text: "Giải thích lý do kỹ thuật hoặc chính sách một cách rõ ràng." }] },
+                { dimension: 'I_E', question: "Khi phải giải thích vấn đề phức tạp cho người khác, tôi thích:", options: [{ trait: 'I', text: "Chuẩn bị tài liệu chi tiết và giải thích có cấu trúc." }, { trait: 'E', text: "Giải thích trực tiếp và tương tác qua lại." }] },
+                { dimension: 'F_T', question: "Khi tư vấn giải pháp cho khách hàng, tôi ưu tiên:", options: [{ trait: 'F', text: "Các giải pháp phù hợp nhất với văn hóa và giá trị của khách hàng." }, { trait: 'T', text: "Các giải pháp hiệu quả nhất về mặt kỹ thuật và chi phí." }] },
+                { dimension: 'J_P', question: "Khi phải thay đổi kế hoạch do tình huống bất ngờ, tôi cảm thấy:", options: [{ trait: 'J', text: "Lo lắng và muốn nhanh chóng thiết lập kế hoạch mới." }, { trait: 'P', text: "Thích thú với thách thức và sẵn sàng thích nghi." }] },
+                { dimension: 'F_T', question: "Trong các cuộc thảo luận nhóm, tôi thường:", options: [{ trait: 'F', text: "Quan tâm đến sự đồng thuận và hài hòa trong nhóm." }, { trait: 'T', text: "Tập trung vào logic và tính nhất quán của lập luận." }] },
+                { dimension: 'J_P', question: "Khi lập kế hoạch dự án, tôi thích:", options: [{ trait: 'J', text: "Xây dựng lịch trình chi tiết với các mốc thời gian cụ thể." }, { trait: 'P', text: "Tạo khuôn khổ linh hoạt cho phép điều chỉnh khi cần thiết." }] },
+                { dimension: 'E_I', question: "Trong các cuộc họp nhóm tại công ty, tôi thường:", options: [{ trait: 'E', text: "Đóng góp ý kiến tích cực và tham gia thảo luận ngay khi có cơ hội." }, { trait: 'I', text: "Lắng nghe kỹ lưỡng và chỉ phát biểu khi đã suy nghĩ kỹ về vấn đề." }] },
+                { dimension: 'F_T', question: "Khi phải đưa ra quyết định khó khăn về nhân sự, tôi thường:", options: [{ trait: 'F', text: "Cân nhắc tác động đến cảm xúc và tinh thần của tất cả mọi người liên quan." }, { trait: 'T', text: "Phân tích tình hình một cách khách quan và dựa trên các tiêu chí cụ thể." }] }
+            ];
+             // END: TÍCH HỢP CÂU HỎI
+
+            const totalQuestions = quizData.length;
+            let currentQuestionIndex = 0;
+            let scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+            let userSelections = new Array(totalQuestions).fill(null);
+
+            const mbtiDimensionMap = { 
+                E_I: ['E', 'I'], I_E: ['I', 'E'],
+                S_N: ['S', 'N'], N_S: ['N', 'S'],
+                T_F: ['T', 'F'], F_T: ['F', 'T'],
+                J_P: ['J', 'P'], P_J: ['P', 'J'],
+                // Add more combinations from questions if needed
+                S_P: ['S', 'P'], F_J: ['F', 'J'], S_F: ['S', 'F']
+             };
+
+            function updateOverallProgress() {
+                const overallProgressBar = document.getElementById('mbti-overall-progress-bar');
+                if (overallProgressBar) {
+                    const completedQuestions = userSelections.filter(s => s !== null).length;
+                    const progressPercent = (completedQuestions / totalQuestions) * 100;
+                    overallProgressBar.style.width = `${progressPercent}%`;
+                }
+            }
+            function renderQuestion() {
+                updateOverallProgress();
+
+                if (currentQuestionIndex >= totalQuestions) {
+                    showResults();
+                    return;
+                }
+
+                const questionData = quizData[currentQuestionIndex];
+                const currentSelection = userSelections[currentQuestionIndex];
+
+                let optionsHtml = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                        ${questionData.options.map((option, index) => {
+                            const isSelected = currentSelection === option.trait;
+                            const color = `var(--tw-mbti-${option.trait.toLowerCase()})`;
+                            const selectedClass = isSelected ? `ring-4 ring-opacity-50 ring-green-500 border-green-500 border-4` : '';
+                            return `
+                                <div class="option-card p-4 bg-white rounded-xl border-2 border-gray-200 shadow-md ${selectedClass} hover:border-green-500 hover:border-4 cursor-pointer transition-all duration-200"
+                                    onclick="MBTIEngine.selectOption('${questionData.dimension}', '${option.trait}')">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="text-2xl font-bold" style="color: ${color};">${option.trait}</div>
+                                        <p class="text-gray-700 font-medium text-left">${option.text}</p>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+
+                document.getElementById('mbti-quiz-area').innerHTML = `
+                    <div class="bg-white p-6 md:p-8 border-l-4 border-green-500 rounded-lg shadow-xl mb-8">
+                        <h3 class="text-xl md:text-2xl font-semibold text-gray-800">${questionData.question} <span class="text-sm font-normal text-gray-500 block mt-2">(Câu ${currentQuestionIndex + 1} / ${totalQuestions})</span></h3>
+                    </div>
+
+                    ${optionsHtml}
+
+                    <div class="flex justify-between mt-8">
+                        <button onclick="MBTIEngine.prevQuestion()" ${currentQuestionIndex === 0 ? 'disabled' : ''}
+                                class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-lg transition duration-300 ${currentQuestionIndex === 0 ? 'opacity-50 cursor-not-allowed' : 'shadow-md'}">
+                            ← Quay lại
+                        </button>
+                        <button onclick="MBTIEngine.nextQuestion()" ${currentSelection === null ? 'disabled' : ''}
+                                class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition duration-300 ${currentSelection === null ? 'opacity-50 cursor-not-allowed' : 'shadow-lg transform hover:scale-105'}">
+                            ${currentQuestionIndex === totalQuestions - 1 ? 'Xem Kết Quả' : 'Tiếp Theo →'}
+                        </button>
+                    </div>
+                `;
+            }
+
+            function selectOption(dimension, trait) {
+                const previousSelection = userSelections[currentQuestionIndex];
+                
+                if (previousSelection) {
+                    scores[previousSelection]--;
+                }
+                
+                scores[trait]++;
+                userSelections[currentQuestionIndex] = trait;
+                renderQuestion();
+            }
+
+            function nextQuestion() {
+                if (userSelections[currentQuestionIndex] === null) return; 
+                currentQuestionIndex++;
+                renderQuestion();
+            }
+
+            function prevQuestion() {
+                if (currentQuestionIndex > 0) {
+                    currentQuestionIndex--;
+                    renderQuestion();
+                }
+            }
+
+            function calculateType(dim1, dim2) {
+                return scores[dim1] >= scores[dim2] ? dim1 : dim2;
+            }
+
+            function getMBTITitle(code) {
+                const titles = {
+                    'E': 'Hướng ngoại', 'I': 'Hướng nội',
+                    'S': 'Cảm giác', 'N': 'Trực giác',
+                    'T': 'Lý trí', 'F': 'Tình cảm',
+                    'J': 'Nguyên tắc', 'P': 'Linh hoạt'
+                };
+                return code.split('').map(c => titles[c]).join('-');
+            }
+
+            function showResults() {
+                document.getElementById('mbti-overall-progress-bar').style.width = '100%';
+                document.getElementById('mbti-quiz-area').classList.add('hidden');
+                document.getElementById('mbti-result-area').classList.remove('hidden');
+
+                const finalCode = 
+                    calculateType('E', 'I') + 
+                    calculateType('S', 'N') + 
+                    calculateType('T', 'F') + 
+                    calculateType('J', 'P');
+                
+                const fullTitle = getMBTITitle(finalCode);
+                const topColor = `var(--tw-mbti-${finalCode.charAt(0).toLowerCase()})`;
+
+                const mainStyleDisplay = document.getElementById('mbti-main-style-display');
+                mainStyleDisplay.innerHTML = `
+                    <p class="text-xl font-medium text-gray-800">Loại hình tính cách MBTI của bạn là:</p>
+                    <h3 class="text-6xl font-extrabold mt-2 mb-4" style="color: ${topColor};">${finalCode}</h3>
+                    <p class="text-lg text-gray-700 mt-1">(${fullTitle})</p>
+                `;
+                
+                document.getElementById('mbti-result-description').innerHTML = `
+                    <p class="mb-4">Kết quả của bạn là <strong>${finalCode}</strong>. Đây là loại hình tính cách nổi bật với các đặc điểm:</p>
+                    <ul class="list-disc pl-5 space-y-1 text-gray-800">
+                        <li><strong>${calculateType('E', 'I')}:</strong> ${calculateType('E', 'I') === 'E' ? 'Bạn nhận năng lượng từ tương tác xã hội.' : 'Bạn nhận năng lượng từ việc ở một mình.'}</li>
+                        <li><strong>${calculateType('S', 'N')}:</strong> ${calculateType('S', 'N') === 'S' ? 'Bạn tập trung vào thực tế, chi tiết.' : 'Bạn tập trung vào ý tưởng, khả năng.'}</li>
+                        <li><strong>${calculateType('T', 'F')}:</strong> ${calculateType('T', 'F') === 'T' ? 'Bạn ra quyết định dựa trên lý trí, logic.' : 'Bạn ra quyết định dựa trên cảm xúc, giá trị.'}</li>
+                        <li><strong>${calculateType('J', 'P')}:</strong> ${calculateType('J', 'P') === 'J' ? 'Bạn thích sự ngăn nắp, có kế hoạch.' : 'Bạn thích sự linh hoạt, tùy biến.'}</li>
+                    </ul>
+                    <p class="text-sm italic mt-4">Lưu ý: Để có kết quả chính xác và toàn diện hơn, bạn nên tìm hiểu sâu và thực hiện các bài trắc nghiệm đầy đủ được chứng nhận.</p>
+                `;
+                document.getElementById('mbti-result-profile').style.borderTopColor = topColor;
+            }
+
+            function restartQuiz() {
+                currentQuestionIndex = 0;
+                scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+                userSelections = new Array(totalQuestions).fill(null);
+                
+                document.getElementById('mbti-quiz-area').classList.remove('hidden');
+                document.getElementById('mbti-result-area').classList.add('hidden');
+                document.getElementById('mbti-overall-progress-bar').style.width = '0%';
+                renderQuestion();
+            }
+
+            return {
+                initialize: renderQuestion,
+                selectOption,
+                nextQuestion,
+                prevQuestion,
+                restartQuiz
+            };
+        })();
+
+        // --- 4. API Test Engine ---
+        const APITestEngine = (function() {
+            const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=";
+            const inputElement = document.getElementById('api-q');
+            const buttonElement = document.getElementById('api-go');
+            const outputElement = document.getElementById('api-out');
+
+            async function callGemini(prompt) {
+                const key = apiKey; 
+
+                try {
+                    const payload = {
+                        contents: [{ role: "user", parts: [{ text: prompt }] }]
+                    };
+
+                    const response = await exponentialBackoffFetch(API_URL + key, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    const data = await response.json();
+                    
+                    return data?.candidates?.[0]?.content?.parts?.[0]?.text 
+                           || JSON.stringify(data, null, 2);
+                } catch (err) {
+                    console.error("API Error:", err);
+                    return "Lỗi khi gọi API: " + err.message;
+                }
+            }
+            
+            function setupListeners() {
+                if (!buttonElement) return;
+
+                const handleApiCall = async () => {
+                    const q = inputElement.value.trim() || "Viết một câu chào ngắn gọn về AI bằng tiếng Việt.";
+                    outputElement.textContent = "Đang gọi API...";
+                    buttonElement.disabled = true;
+                    buttonElement.classList.add('opacity-50');
+
+                    try {
+                        const reply = await callGemini(q);
+                        outputElement.textContent = reply;
+                    } catch (error) {
+                         outputElement.textContent = `Lỗi: ${error.message}`;
+                    } finally {
+                        buttonElement.disabled = false;
+                        buttonElement.classList.remove('opacity-50');
+                    }
+                };
+
+                buttonElement.removeEventListener('click', handleApiCall); 
+                buttonElement.addEventListener('click', handleApiCall);
+                inputElement.removeEventListener('keypress', handleApiCall);
+                inputElement.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') handleApiCall();
+                });
+            }
+
+            return {
+                initialize: setupListeners
+            };
+        })();
+
+
+        // --- Global State and Navigation Logic ---
+
+        let isSearchChatReady = false;
+        let isAdviceChatReady = false;
+        
+        async function exponentialBackoffFetch(url, options, maxRetries = 5) {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.status === 429 && i < maxRetries - 1) {
+                        const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue;
+                    }
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response;
+                } catch (error) {
+                    if (i === maxRetries - 1) throw error;
+                    const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+        }
+
+        function initializeQuiz(mode) {
+            if (mode === 'disc') DISCEngine.restartQuiz();
+            else if (mode === 'holland') HollandEngine.restartQuiz();
+            else if (mode === 'mbti') MBTIEngine.restartQuiz();
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page-content').forEach(page => page.style.display = 'none');
+            
+            const pageToShow = document.getElementById(pageId + '-page');
+            if (pageToShow) {
+                pageToShow.style.display = 'block';
+            }
+            
+            if (pageId === 'quiz-disc') {
+                 initializeQuiz('disc'); 
+            }
+            if (pageId === 'quiz-holland') {
+                 initializeQuiz('holland'); 
+            }
+            if (pageId === 'quiz-mbti') {
+                 initializeQuiz('mbti'); 
+            }
+            if (pageId === 'search' && !isSearchChatReady) {
+                setupChatbot('search');
+            }
+            if (pageId === 'advice' && !isAdviceChatReady) {
+                setupChatbot('advice');
+            }
+            if (pageId === 'admissions') {
+                showAdmissionsContent('forms'); 
+            }
+            if (pageId === 'api-test') {
+                APITestEngine.initialize();
+            }
+
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.add('hidden');
+            }
+            window.scrollTo(0, 0);
+        }
+        
+        // --- Chatbot and API Logic ---
+
+        let searchChatHistory = [{ role: "model", parts: [{ text: "Chào bạn! Tôi là AI Hướng Nghiệp. Hãy nhập ngành nghề (ví dụ: 'Công nghệ Thông tin') để tôi tra cứu thông tin mới nhất và trích dẫn nguồn cho bạn." }] }];
+        let adviceChatHistory = [{ role: "model", parts: [{ text: "Chào bạn. Tôi là AI Tư Vấn. Hãy chia sẻ bất kỳ khó khăn hay băn khoăn nào bạn đang gặp phải. Tôi sẽ lắng nghe và đưa ra lời khuyên chân thành." }] }];
+
+        async function sendMessageToGemini(userInput, mode) {
+            const isSearch = mode === 'search';
+            const chatHistory = isSearch ? searchChatHistory : adviceChatHistory;
+            const historyElement = isSearch ? document.getElementById('chat-history') : document.getElementById('advice-chat-history');
+            const inputElement = isSearch ? document.getElementById('search-user-input') : document.getElementById('advice-user-input');
+            const sendButton = isSearch ? document.getElementById('search-send-btn') : document.getElementById('advice-send-btn');
+
+            inputElement.disabled = true;
+            sendButton.disabled = true;
+            sendButton.innerHTML = `<svg class="animate-spin h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+
+            chatHistory.push({ role: "user", parts: [{ text: userInput }] });
+            appendMessage(historyElement, userInput, 'user');
+            appendTypingIndicator(historyElement);
+            historyElement.scrollTop = historyElement.scrollHeight;
+
+            const systemPrompt = isSearch 
+                ? "Bạn là một chuyên gia hướng nghiệp. Hãy sử dụng Google Search để tìm kiếm thông tin về ngành nghề của người dùng. Trả lời chi tiết, chính xác bằng tiếng Việt và trích dẫn tất cả các nguồn."
+                : "Bạn là một người lắng nghe chân thành, thấu cảm. Hãy đưa ra lời khuyên chân thành, khích lệ và không phán xét bằng tiếng Việt, tập trung giúp người dùng giải quyết băn khoăn về sự nghiệp hoặc cuộc sống.";
+
+            const payload = {
+                contents: chatHistory,
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+            if (isSearch) {
+                payload.tools = [{ "google_search": {} }];
+            }
+
+            const apiUrl = `${GEMINI_API_URL}?key=${apiKey}`;
+
+            let aiResponseText = "Xin lỗi, đã xảy ra lỗi. Vui lòng thử lại.";
+            let sources = [];
+
+            try {
+                const response = await exponentialBackoffFetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                const candidate = result.candidates?.[0];
+
+                if (candidate?.content?.parts?.[0]?.text) {
+                    aiResponseText = candidate.content.parts[0].text;
+                    const groundingMetadata = candidate.groundingMetadata;
+                    if (groundingMetadata?.groundingAttributions) {
+                        sources = groundingMetadata.groundingAttributions
+                            .map(attr => ({ uri: attr.web?.uri, title: attr.web?.title }))
+                            .filter(src => src.uri && src.title);
+                    }
+                    chatHistory.push({ role: "model", parts: [{ text: aiResponseText }] });
+                } else if (result.error) {
+                    aiResponseText = `Đã xảy ra lỗi: ${result.error.message}`;
+                }
+            } catch (error) {
+                console.error("API Call failed:", error);
+                aiResponseText = "Đã xảy ra lỗi kết nối. Vui lòng kiểm tra lại kết nối mạng hoặc thử lại sau.";
+            } finally {
+                removeTypingIndicator();
+                appendMessage(historyElement, aiResponseText, 'ai', sources);
+                historyElement.scrollTop = historyElement.scrollHeight;
+                
+                inputElement.disabled = false;
+                sendButton.disabled = false;
+                sendButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.917H3.75a.75.75 0 00-.75.75v6.75a.75.75 0 001.085.67L17.25 4.75l-13.772-2.345Z" /></svg>`;
+                inputElement.value = '';
+                inputElement.focus();
+            }
+        }
+
+        function appendMessage(historyElement, text, sender, sources = []) {
+            const isUser = sender === 'user';
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex ${isUser ? 'justify-end' : 'justify-start'}`;
+
+            let sourcesHtml = '';
+            if (!isUser && sources.length > 0) {
+                const displayedSources = sources.slice(0, 3);
+                sourcesHtml = `
+                    <div class="mt-2 text-xs text-gray-500 border-t border-gray-300 pt-2">
+                        <p class="font-semibold mb-1">Nguồn trích dẫn:</p>
+                        <ul class="space-y-1">
+                            ${displayedSources.map((src, i) => `<li><a href="${src.uri}" target="_blank" class="text-blue-600 hover:underline truncate block max-w-full">${i + 1}. ${src.title || src.uri}</a></li>`).join('')}
+                        </ul>
+                    </div>`;
+            }
+            
+            const formattedText = text
+                .replace(/\n/g, '<br>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+            messageDiv.innerHTML = `
+                <div class="message-bubble ${isUser ? 'user-message' : 'ai-message'} shadow-md">
+                    ${formattedText}
+                    ${sourcesHtml}
+                </div>`;
+            historyElement.appendChild(messageDiv);
+        }
+
+        function appendTypingIndicator(historyElement) {
+            removeTypingIndicator(); // Ensure no duplicates
+            const indicatorDiv = document.createElement('div');
+            indicatorDiv.id = 'typing-indicator';
+            indicatorDiv.className = 'flex justify-start';
+            indicatorDiv.innerHTML = `
+                <div class="message-bubble ai-message shadow-md typing-indicator">
+                    <span></span><span></span><span></span>
+                </div>`;
+            historyElement.appendChild(indicatorDiv);
+            historyElement.scrollTop = historyElement.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) indicator.remove();
+        }
+        
+        function setupChatbot(mode) {
+            const isSearch = mode === 'search';
+            if ((isSearch && isSearchChatReady) || (!isSearch && isAdviceChatReady)) return;
+
+            const historyElement = isSearch ? document.getElementById('chat-history') : document.getElementById('advice-chat-history');
+            const inputElement = isSearch ? document.getElementById('search-user-input') : document.getElementById('advice-user-input');
+            const sendButton = isSearch ? document.getElementById('search-send-btn') : document.getElementById('advice-send-btn');
+            const chatHistory = isSearch ? searchChatHistory : adviceChatHistory;
+            
+            historyElement.innerHTML = '';
+            chatHistory.forEach(msg => appendMessage(historyElement, msg.parts[0].text, msg.role));
+            historyElement.scrollTop = historyElement.scrollHeight;
+
+            inputElement.disabled = false;
+            sendButton.disabled = false;
+
+            const sendMessageHandler = () => {
+                const userInput = inputElement.value.trim();
+                if (userInput) sendMessageToGemini(userInput, mode);
+            };
+
+            sendButton.onclick = null;
+            inputElement.onkeypress = null;
+
+            sendButton.addEventListener('click', sendMessageHandler);
+            inputElement.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMessageHandler();
+            });
+
+            if (isSearch) isSearchChatReady = true;
+            else isAdviceChatReady = true;
+        }
+
+        // --- Inspiration Modal Logic ---
+
+        const storyData = {
+            thao: {
+                title: "Thảo: Từ Blogger Ẩm Thực đến CEO Ứng dụng nấu ăn", type: "Lĩnh vực: Công nghệ & Ẩm thực | Mã Holland: ASE",
+                content: `<p class="text-gray-700 mb-4">Thảo từng học Quản trị Kinh doanh và có công việc ổn định. Tuy nhiên, niềm đam mê lớn nhất của cô là nấu ăn. Cô bắt đầu một blog ẩm thực vào buổi tối và cuối tuần. Blog nhanh chóng thu hút độc giả, nhưng Thảo nhận ra người dùng gặp khó khăn trong việc lưu trữ công thức và lập kế hoạch thực đơn.</p><p class="text-gray-700 mb-4">Nhận thấy đây là vấn đề có thể giải quyết bằng công nghệ, Thảo tham gia khóa học lập trình ngắn hạn. Dù khó khăn, cô dùng kiến thức kinh doanh để phát triển ý tưởng ứng dụng di động "Bếp thông minh". Sau khi nghỉ việc, cô dành toàn bộ thời gian gọi vốn và phát triển. Ứng dụng của cô hiện có hàng trăm nghìn người dùng.</p><p class="text-gray-700 font-semibold italic">Lời khuyên của Thảo: "Đam mê chỉ là khởi đầu. Quan trọng là bạn phải tìm ra 'vấn đề' mà đam mê đó có thể giải quyết, và dám học hỏi kỹ năng mới để biến ý tưởng thành hiện thực."</p>`
+            },
+            hoang: {
+                title: "Hoàng: Bỏ Kỹ thuật Xây dựng để theo đuổi Thiết kế Đồ họa", type: "Lĩnh vực: Sáng tạo | Mã Holland: AIE",
+                content: `<p class="text-gray-700 mb-4">Hoàng được định hướng vào ngành Kỹ thuật Xây dựng vì gia đình tin rằng đó là công việc ổn định. Tuy nhiên, sau hai năm, Hoàng cảm thấy chán nản vì công việc đòi hỏi sự chi tiết và quy tắc chặt chẽ, trái ngược với mong muốn sáng tạo của cậu. Cậu dành thời gian rảnh để tự học Photoshop và vẽ kỹ thuật số.</p><p class="text-gray-700 mb-4">Sau nhiều đêm suy nghĩ, Hoàng quyết định tạm dừng việc học để tập trung xây dựng Portfolio thiết kế. Đây là một quyết định rất khó khăn, bị nhiều người phản đối. Hoàng phải làm thêm để trang trải chi phí học online. Sau 1 năm miệt mài, Hoàng có một bộ sưu tập tác phẩm đủ sức thuyết phục và được nhận vào một công ty thiết kế nổi tiếng.</p><p class="text-gray-700 font-semibold italic">Lời khuyên của Hoàng: "Đừng sợ hãi khi phải làm lại. Hãy dũng cảm lựa chọn con đường khiến bạn cảm thấy sống có ý nghĩa. Việc chấp nhận mất thời gian để tìm lại chính mình là khoản đầu tư tốt nhất."</p>`
+            },
+            lan: {
+                title: "Lan: Mang Công nghệ vào Ruộng đồng", type: "Lĩnh vực: Nông nghiệp công nghệ | Mã Holland: RIC",
+                content: `<p class="text-gray-700 mb-4">Lan tốt nghiệp ngành Công nghệ Sinh học. Thay vì tìm việc ở thành phố, cô lại muốn trở về quê hương để ứng dụng kiến thức khoa học vào nông nghiệp. Nhiều người cho rằng cô đang 'lãng phí' tấm bằng đại học.</p><p class="text-gray-700 mb-4">Lan bắt đầu với một khu vườn nhỏ, thử nghiệm hệ thống tưới tiêu tự động và cảm biến đất đai (IoT). Cô ghi lại và phân tích dữ liệu về độ ẩm, dinh dưỡng, ánh sáng. Sự kết hợp giữa kiến thức nghiên cứu (Investigative) và ứng dụng thực tế (Realistic) đã giúp vườn rau của Lan đạt chất lượng và năng suất vượt trội. Mô hình của cô sau đó được chính quyền địa phương hỗ trợ mở rộng.</p><p class="text-gray-700 font-semibold italic">Lời khuyên của Lan: "Công nghệ không chỉ dành cho thành phố. Nhu cầu giải quyết vấn đề thực tế ở nông thôn là rất lớn. Hãy dùng tư duy khoa học để tạo ra giá trị bền vững."</p>`
+            }
+        };
+
+        function showStoryModal(storyKey) {
+            const story = storyData[storyKey];
+            const modal = document.getElementById('storyModal');
+            const contentDiv = document.getElementById('modal-story-content');
+            contentDiv.innerHTML = `
+                <h2 class="text-3xl font-bold text-gray-900 mb-2">${story.title}</h2>
+                <p class="text-md text-indigo-600 mb-6 font-medium">${story.type}</p>
+                <div class="text-base leading-relaxed">${story.content}</div>`;
+            modal.style.display = 'block';
+        }
+
+        function closeStoryModal() {
+            document.getElementById('storyModal').style.display = 'none';
+        }
+        
+        // --- Admissions Logic ---
+
+        const admissionsData = {
+            forms: `<h3 class="text-2xl font-bold text-indigo-700 mb-4">Các hình thức tuyển sinh phổ biến (2025)</h3><ul class="list-disc pl-5 space-y-3 text-gray-700"><li><strong>Xét tuyển theo kết quả thi Tốt nghiệp THPT:</strong> Phương thức truyền thống, chiếm tỷ trọng lớn nhất.</li><li><strong>Xét tuyển theo Học bạ:</strong> Dựa trên điểm trung bình các môn của cấp THPT.</li><li><strong>Xét tuyển bằng kỳ thi Đánh giá năng lực (ĐGNL):</strong> Do các đại học Quốc gia hoặc trường lớn tổ chức.</li><li><strong>Xét tuyển thẳng và ưu tiên xét tuyển:</strong> Dành cho học sinh giỏi quốc gia, quốc tế.</li><li><strong>Xét tuyển kết hợp:</strong> Kết hợp chứng chỉ quốc tế (IELTS, SAT) với điểm thi THPT hoặc học bạ.</li></ul><p class="mt-4 text-sm text-gray-500 italic">Lời khuyên: Thí sinh nên đăng ký từ 2-3 phương thức để tối đa hóa cơ hội.</p>`,
+            universities: `<h3 class="text-2xl font-bold text-indigo-700 mb-4">Các nhóm trường Đại học trọng điểm</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="p-4 bg-white rounded-lg border"><h4 class="font-bold text-lg">Đại học Quốc gia</h4><p class="text-gray-600">ĐHQG Hà Nội, ĐHQG TP.HCM: Đào tạo đa ngành, chất lượng hàng đầu.</p></div><div class="p-4 bg-white rounded-lg border"><h4 class="font-bold text-lg">Khối Kỹ thuật</h4><p class="text-gray-600">ĐH Bách Khoa, ĐH Sư phạm Kỹ thuật: Tập trung đào tạo Kỹ thuật, Công nghệ.</p></div><div class="p-4 bg-white rounded-lg border"><h4 class="font-bold text-lg">Khối Kinh tế</h4><p class="text-gray-600">ĐH Kinh tế Quốc dân, ĐH Ngoại thương: Chuyên sâu về Kinh doanh, Tài chính.</p></div><div class="p-4 bg-white rounded-lg border"><h4 class="font-bold text-lg">Khối Sức khỏe</h4><p class="text-gray-600">ĐH Y Hà Nội, ĐH Y Dược TP.HCM: Chuyên về Y khoa, Dược, Điều dưỡng.</p></div></div>`,
+            news: `<h3 class="text-2xl font-bold text-indigo-700 mb-4">Tin tức Tuyển sinh (Mô phỏng 2025)</h3><ul class="list-disc pl-5 space-y-3 text-gray-700"><li><strong>15/05/2025:</strong> Các trường công bố ngưỡng điểm nhận hồ sơ xét tuyển bằng điểm thi ĐGNL.</li><li><strong>01/06/2025:</strong> Kết thúc nhận hồ sơ xét tuyển Học bạ đợt 1.</li><li><strong>10/07/2025:</strong> Bộ GD&ĐT công bố lịch thi và quy chế chi tiết kỳ thi Tốt nghiệp THPT.</li></ul><p class="mt-4 text-sm text-red-500 font-semibold">Lưu ý: Thông tin trên mang tính chất mô phỏng, vui lòng kiểm tra thông báo chính thức.</p>`,
+            scholarships: `<h3 class="text-2xl font-bold text-indigo-700 mb-4">Các loại Học bổng phổ biến</h3><ul class="list-disc pl-5 space-y-3 text-gray-700"><li><strong>Học bổng Khuyến khích Học tập:</strong> Dành cho sinh viên có thành tích học tập xuất sắc.</li><li><strong>Học bổng Đầu vào:</strong> Dựa trên điểm thi THPT cao, hoặc thành tích thi ĐGNL/chứng chỉ quốc tế.</li><li><strong>Học bổng Doanh nghiệp:</strong> Do các công ty, tập đoàn tài trợ (ví dụ: FPT, Viettel, Samsung).</li><li><strong>Học bổng Chính phủ:</strong> Dành cho các chương trình trao đổi sinh viên quốc tế hoặc du học.</li></ul><p class="mt-4 text-sm text-gray-500 italic">Mẹo: Chủ động tìm kiếm thông tin học bổng trên website chính thức của trường.</p>`
+        };
+
+        function showAdmissionsContent(key) {
+            const displayElement = document.getElementById('admissions-content-display');
+            displayElement.innerHTML = admissionsData[key] || '';
+            document.querySelectorAll('.admissions-nav-btn').forEach(btn => {
+                const isActive = btn.getAttribute('data-key') === key;
+                btn.classList.toggle('bg-indigo-600', isActive);
+                btn.classList.toggle('text-white', isActive);
+                btn.classList.toggle('bg-indigo-100', !isActive);
+                btn.classList.toggle('text-indigo-800', !isActive);
+            });
+        }
+        
+        // --- Exam Library Logic (THI THỬ) ---
+
+        function linkToAzota(type) {
+            let title = "Thông báo Thi thử";
+            let message = "Bạn sẽ được chuyển đến trang thi thử mô phỏng trên nền tảng Azota. Chúc bạn làm bài tốt!";
+
+            if (type === 'thpt_official') {
+                const yearSelect = document.getElementById('official-exam-year');
+                const subjectSelect = document.getElementById('official-exam-subject');
+                const year = yearSelect.value;
+                const subjectText = subjectSelect.options[subjectSelect.selectedIndex].text;
+
+                if (!year || !subjectSelect.value) {
+                    showCustomModal("Lỗi", "Vui lòng chọn đầy đủ Năm thi và Bài thi/Môn thi.");
+                    return;
+                }
+                message = `Bạn đã chọn thi thử Đề chính thức năm ${year}, môn ${subjectText}. Hệ thống đang chuẩn bị đề...`;
+            } else if (type === 'thpt_new') {
+                 message = `Bạn sẽ được chuyển đến ngân hàng đề thi thử mới nhất từ các Sở GD. Chúc bạn luyện tập hiệu quả!`;
+            } else if (type === 'dgnl') {
+                message = `Bạn sẽ được chuyển đến khu vực luyện thi Đánh giá Năng lực. Hãy sẵn sàng cho các câu hỏi tư duy!`;
+            }
+            
+            showCustomModal(title, message + " (Đây là tính năng mô phỏng)");
+        }
+        
+        // --- Custom Modal ---
+        
+        function showCustomModal(title, message) {
+            document.getElementById('customAlertTitle').textContent = title;
+            document.getElementById('customAlertMessage').innerHTML = message;
+            document.getElementById('customAlertModal').style.display = 'block';
+        }
+
+        // --- Visitor Counter Logic (Local Storage Fallback) ---
+        function updateVisitorCount() {
+            let count = localStorage.getItem('visitorCount');
+            if (count === null) {
+                count = 1;
+            } else {
+                count = parseInt(count) + 1;
+            }
+            localStorage.setItem('visitorCount', count);
+            const countElement = document.getElementById('visitor-count');
+            if (countElement) {
+                countElement.textContent = count.toLocaleString('vi-VN');
+            }
+        }
+
+        window.onclick = function(event) {
+            const storyModal = document.getElementById('storyModal');
+            const alertModal = document.getElementById('customAlertModal');
+            if (event.target == storyModal) closeStoryModal();
+            if (event.target == alertModal) alertModal.style.display = 'none';
+        }
+
+        // --- Initialization ---
+
+        window.onload = function() {
+            showPage('home');
+            updateVisitorCount(); // Fallback visitor counter
+            APITestEngine.initialize();
+        };
+    </script>
+
+<!-- Footer with Visit Counter -->
+<footer class="bg-gray-800 text-white py-6 mt-12 text-center">
+  <p class="text-sm">👁️ Tổng lượt truy cập: <span id="visit-count">...</span></p>
+  <p class="text-xs text-gray-400 mt-1">© 2025 Hệ sinh thái định hướng nghề nghiệp</p>
+</footer>
+
+Firebase
+</body>
+</html>
+
